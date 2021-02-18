@@ -1,4 +1,4 @@
-import { Isometric } from "./Isometric"
+import { Isomorphic } from "./Isomorphic"
 
 export namespace IDGen {
     export function random() {
@@ -12,7 +12,7 @@ export namespace IDGen {
             bytes.push(parseInt(byte, 16))
         }
         const binary = String.fromCharCode(...bytes)
-        const base64 = Isometric.toBase64(binary)
+        const base64 = Isomorphic.toBase64(binary)
 
         return base64.replace(/\//g, "_").replace(/\+/g, "-").replace(/=/g, "")
     }

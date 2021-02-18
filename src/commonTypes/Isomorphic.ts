@@ -1,4 +1,4 @@
-export namespace Isometric {
+export namespace Isomorphic {
     export function toBase64(source: string): string {
         // @ts-ignore
         return "btoa" in globalThis ? globalThis.btoa(source) : "Buffer" in globalThis ? Buffer.from(source, "binary").toString("base64") : (() => { throw new Error("No function found to get base64") })()
