@@ -1,2 +1,2 @@
-# Common Types
+# Common Types [![Testing](https://github.com/bt7s7k7/CommonTypes/actions/workflows/testing.yml/badge.svg)](https://github.com/bt7s7k7/CommonTypes/actions/workflows/testing.yml)
 Collection of common utility functions and classes for my projects.
