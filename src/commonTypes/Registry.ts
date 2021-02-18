@@ -1,17 +1,22 @@
+import { IDGen } from "./IDGen"
 import { toString } from "./toString"
 
 export namespace Registry {
     export interface TypeOptions {
         keys: Record<keyof any, any>,
         computed: Record<keyof any, any>,
+        genID: { key: string, type: "increment" | "random" } | null
     }
 
     export interface Prototype<U, T extends TypeOptions = {
         keys: {},
-        computed: {}
+        computed: {},
+        genID: null
     }> extends PrototypeData {
         addKey<K extends keyof U, V = K extends keyof U ? U[K] : any>(key: K): Prototype<U, T & { keys: { [P in K]: V } }>
         addComputedKey<K extends string, V>(key: K, getter: (record: U) => V): Prototype<U, T & { computed: { [P in K]: V } }>
+        addIncrementID<K extends string = "id">(key?: K): Prototype<U, Omit<T, "genID"> & { genID: { key: K, type: "increment" } }>
+        addRandomID<K extends string = "id">(key?: K): Prototype<U, Omit<T, "genID"> & { genID: { key: K, type: "random" } }>
         build(): Type<U, T>
     }
 
@@ -23,16 +28,19 @@ export namespace Registry {
         [P in keyof T["keys"]]: Omit<Key<U, T["keys"][P]>, "register" | "unregister">
     } & {
             [P in keyof T["computed"]]: Omit<Key<U, T["keys"][P]>, "register" | "unregister">
-        } & {
-            register(record: U): Instance<U, T>
+        } & (T["genID"] extends null ? {} : {
+            [P in NonNullable<T["genID"]>["key"]]: Omit<GeneratedKey<U>, "register" | "unregister">
+        }) & {
+            register(record: U, options?: RegisterOptions): Instance<U, T>
             unregister(record: U): Instance<U, T>
-            keys: Key[]
+            keys: Key[],
+            nextID(): string
         }
 
     export class Key<T = any, K = any> {
 
-        public register(record: T) {
-            const key = this.getter(record)
+        public register(record: T, options: RegisterOptions) {
+            const key = this.getter(record, options)
             if (this.lookupMap.has(key)) throw new Error(`Duplicate key "${this.name}" = "${toString(key)}"`)
             this.lookupMap.set(key, record)
             this.reverseLookupMap.set(record, key)
@@ -70,16 +78,46 @@ export namespace Registry {
         constructor(
             public readonly name: string,
             public readonly index: keyof any,
-            protected readonly getter: (record: T) => K
+            protected readonly getter: (record: T, options: RegisterOptions) => K
         ) { }
+    }
+
+    export class GeneratedKey<T = any> extends Key<T, string> {
+
+        public nextID() {
+            let id: string
+            do {
+                if (this.type == "random") {
+                    id = IDGen.random()
+                } else {
+                    id = (this.counter++).toString()
+                }
+            } while (this.tryFind(id))
+
+            return id
+        }
+
+        protected counter = 0
+
+        constructor(
+            name: string,
+            protected readonly type: NonNullable<TypeOptions["genID"]>["type"]
+        ) {
+            super(name, name, (_, { genID }) => genID ?? this.nextID())
+        }
     }
 
     export interface PrototypeData {
         keys: (keyof any)[],
-        computed: { key: string, getter: (record: any) => any }[]
+        computed: { key: string, getter: (record: any) => any }[],
+        genID: TypeOptions["genID"]
     }
 
-    export function createPrototype(data: PrototypeData = { computed: [], keys: [] }): Prototype<any> {
+    export interface RegisterOptions {
+        genID?: string
+    }
+
+    export function createPrototype(data: PrototypeData = { computed: [], keys: [], genID: null }): Prototype<any> {
         return {
             addKey(key) {
                 return createPrototype({ ...data, keys: [...data.keys, key] }) as any
@@ -99,8 +137,12 @@ export namespace Registry {
                         this.keys.push(new Key(computed.key, computed.key, computed.getter))
                     }
 
-                    this.register = (record: any) => {
-                        this.keys.forEach(v => v.register(record))
+                    if (data.genID) {
+                        this.keys.push(new GeneratedKey(data.genID.key, data.genID.type))
+                    }
+
+                    this.register = (record: any, options = {}) => {
+                        this.keys.forEach(v => v.register(record, options))
                         return this
                     }
 
@@ -109,11 +151,22 @@ export namespace Registry {
                         return this
                     }
 
+                    let counter = 0
+                    this.nextID = () => {
+                        return (counter++).toString()
+                    }
+
                     for (const key of this.keys) {
                         this[key.index as any] = key
                     }
 
                 } as any
+            },
+            addIncrementID(key) {
+                return createPrototype({ ...data, genID: { key: key ?? "id", type: "increment" } }) as any
+            },
+            addRandomID(key) {
+                return createPrototype({ ...data, genID: { key: key ?? "id", type: "random" } }) as any
             },
             ...data
         }
