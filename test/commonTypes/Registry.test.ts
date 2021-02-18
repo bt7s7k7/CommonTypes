@@ -9,6 +9,11 @@ describeMember(() => Registry, () => {
         height: number
     }
 
+    interface Boo {
+        firstName: string,
+        secondName: string
+    }
+
     function createFooRegistryType() {
         const FooRegistry = Registry.define<Foo>()
             .addKey("id")
@@ -18,9 +23,18 @@ describeMember(() => Registry, () => {
         return FooRegistry
     }
 
+    function createBooRegistryType() {
+        const BooRegistry = Registry.define<Boo>()
+            .addComputedKey("fullName", v => `${v.firstName} ${v.secondName}`)
+            .build()
+
+        return { BooRegistry }
+    }
+
     describeMember(() => Registry.define, () => {
         it("Should be able to crate a type", () => {
             new (createFooRegistryType())()
+            new (createBooRegistryType().BooRegistry)()
         })
     })
 
@@ -40,7 +54,14 @@ describeMember(() => Registry, () => {
                 fooRegistry.register({ id: "0", height: 5 })
             })
 
-            it("Should throw an error on duplicate id", () => {
+            it("Should register a record with a computed key", () => {
+                const { BooRegistry } = createBooRegistryType()
+                const booRegistry = new BooRegistry()
+
+                booRegistry.register({ firstName: "aa", secondName: "bb" })
+            })
+
+            it("Should throw an error on duplicate key", () => {
                 const FooRegistry = createFooRegistryType()
                 const fooRegistry = new FooRegistry()
 
@@ -53,6 +74,17 @@ describeMember(() => Registry, () => {
                 expect(() => {
                     fooRegistry.register({ id: "1", height: 5 })
                 }).to.throw(`"height" = "5"`)
+            })
+
+            it("Should throw an error on duplicate computed key", () => {
+                const { BooRegistry } = createBooRegistryType()
+                const booRegistry = new BooRegistry()
+
+                booRegistry.register({ firstName: "aa", secondName: "bb" })
+
+                expect(() => {
+                    booRegistry.register({ firstName: "aa", secondName: "bb" })
+                }).to.throw(`"fullName" = "aa bb"`)
             })
         })
 

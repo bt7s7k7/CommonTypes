@@ -2,13 +2,16 @@ import { toString } from "./toString"
 
 export namespace Registry {
     export interface TypeOptions {
-        keys: Record<keyof any, any>
+        keys: Record<keyof any, any>,
+        computed: Record<keyof any, any>,
     }
 
     export interface Prototype<U, T extends TypeOptions = {
-        keys: {}
-    }> {
+        keys: {},
+        computed: {}
+    }> extends PrototypeData {
         addKey<K extends keyof U, V = K extends keyof U ? U[K] : any>(key: K): Prototype<U, T & { keys: { [P in K]: V } }>
+        addComputedKey<K extends string, V>(key: K, getter: (record: U) => V): Prototype<U, T & { computed: { [P in K]: V } }>
         build(): Type<U, T>
     }
 
@@ -19,10 +22,12 @@ export namespace Registry {
     export type Instance<U, T extends TypeOptions> = {
         [P in keyof T["keys"]]: Omit<Key<U, T["keys"][P]>, "register" | "unregister">
     } & {
-        register(record: U): Instance<U, T>
-        unregister(record: U): Instance<U, T>
-        keys: Key[]
-    }
+            [P in keyof T["computed"]]: Omit<Key<U, T["keys"][P]>, "register" | "unregister">
+        } & {
+            register(record: U): Instance<U, T>
+            unregister(record: U): Instance<U, T>
+            keys: Key[]
+        }
 
     export class Key<T = any, K = any> {
 
@@ -69,17 +74,29 @@ export namespace Registry {
         ) { }
     }
 
-    export function createPrototype(getterKeys: (keyof any)[] = []): Prototype<any> {
+    export interface PrototypeData {
+        keys: (keyof any)[],
+        computed: { key: string, getter: (record: any) => any }[]
+    }
+
+    export function createPrototype(data: PrototypeData = { computed: [], keys: [] }): Prototype<any> {
         return {
             addKey(key) {
-                return createPrototype([...getterKeys, key]) as any
+                return createPrototype({ ...data, keys: [...data.keys, key] }) as any
+            },
+            addComputedKey(key, getter) {
+                return createPrototype({ ...data, computed: [...data.computed, { key, getter }] }) as any
             },
             build() {
                 return function (this: Instance<any, any>) {
                     this.keys = []
 
-                    for (const key of getterKeys) {
+                    for (const key of data.keys) {
                         this.keys.push(new Key(key.toString(), key, v => v[key]))
+                    }
+
+                    for (const computed of data.computed) {
+                        this.keys.push(new Key(computed.key, computed.key, computed.getter))
                     }
 
                     this.register = (record: any) => {
@@ -97,7 +114,8 @@ export namespace Registry {
                     }
 
                 } as any
-            }
+            },
+            ...data
         }
     }
 
