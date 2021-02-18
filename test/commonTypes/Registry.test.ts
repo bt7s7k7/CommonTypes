@@ -218,27 +218,28 @@ describeMember(() => Registry, () => {
             })
         })
 
-        describe("[key]", () => {
-            function prepareRegistry() {
-                const { StandardRegistry } = createStandardRegistryType()
-                const standardRegistry = new StandardRegistry()
+        function prepareRegistry() {
+            const { StandardRegistry } = createStandardRegistryType()
+            const standardRegistry = new StandardRegistry()
 
-                const a: Standard = {
-                    id: "0",
-                    height: 58
-                }
-
-                const b: Standard = {
-                    id: "1",
-                    height: 128
-                }
-
-                standardRegistry
-                    .register(a)
-                    .register(b)
-
-                return { standardRegistry, a, b }
+            const a: Standard = {
+                id: "0",
+                height: 58
             }
+
+            const b: Standard = {
+                id: "1",
+                height: 128
+            }
+
+            standardRegistry
+                .register(a)
+                .register(b)
+
+            return { standardRegistry, a, b }
+        }
+
+        describe("[key]", () => {
 
             describeMember(() => mockInstance<Registry.Instance<any, any>>().key.find, () => {
                 it("Should find the correct record", () => {
@@ -310,6 +311,19 @@ describeMember(() => Registry, () => {
 
                     expect(standardRegistry.id.tryFindReverse({ height: -1, id: "invalid" })).to.equal(null)
                 })
+            })
+        })
+
+        describe("[Symbol.iterator]", () => {
+            it("Should be able to iterate over all records with their keys", () => {
+                const { a, b, standardRegistry } = prepareRegistry()
+
+                const records = [a, b]
+
+                const registryEntries = [...standardRegistry]
+
+                expect(registryEntries.map(v => v[0])).to.include.members(records)
+                expect(registryEntries.map(v => v[1])).to.deep.include.members(records)
             })
         })
     })

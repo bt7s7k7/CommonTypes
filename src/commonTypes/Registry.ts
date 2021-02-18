@@ -24,18 +24,25 @@ export namespace Registry {
         new(): Instance<U, T>
     }
 
-    export type Instance<U, T extends TypeOptions> = {
+    export type InstanceKeys<U, T extends TypeOptions> = {
         [P in keyof T["keys"]]: Omit<Key<U, T["keys"][P]>, "register" | "unregister">
     } & {
             [P in keyof T["computed"]]: Omit<Key<U, T["keys"][P]>, "register" | "unregister">
         } & (T["genID"] extends null ? {} : {
             [P in NonNullable<T["genID"]>["key"]]: Omit<GeneratedKey<U>, "register" | "unregister">
-        }) & {
-            register(record: U, options?: RegisterOptions): Instance<U, T>
-            unregister(record: U): Instance<U, T>
-            keys: Key[],
-            nextID(): string
-        }
+        })
+
+    export type KeyType<T> = T extends Omit<Key<any, infer U>, "register" | "unregister"> ? U : never
+
+    export type Instance<U, T extends TypeOptions> = InstanceKeys<U, T> & {
+        register(record: U, options?: RegisterOptions): Instance<U, T>
+        unregister(record: U): Instance<U, T>
+        keys: Key[],
+        nextID(): string
+        [Symbol.iterator]: () => Generator<[U, {
+            [P in keyof InstanceKeys<U, T>]: KeyType<InstanceKeys<U, T>[P]>
+        }]>
+    }
 
     export class Key<T = any, K = any> {
 
@@ -71,6 +78,8 @@ export namespace Registry {
             if (ret === null) throw new Error(`Failed to find key for record "${toString(record)}"`)
             return ret
         }
+
+        public [Symbol.iterator] = () => this.lookupMap[Symbol.iterator]()
 
         protected readonly lookupMap = new Map<K, T>()
         protected readonly reverseLookupMap = new Map<T, K>()
@@ -158,6 +167,13 @@ export namespace Registry {
 
                     for (const key of this.keys) {
                         this[key.index as any] = key
+                    }
+
+                    this[Symbol.iterator] = function* () {
+                        const target = this.keys[0] as Key<any, void>
+                        for (const [, record] of target) {
+                            yield [record, Object.fromEntries(this.keys.map(v => [v.index, v.findReverse(record)]))]
+                        }
                     }
 
                 } as any

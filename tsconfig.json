@@ -5,7 +5,7 @@
         "sourceMap": true,
         "strict": true,
         "lib": [
-            "es6"
+            "ESNext"
         ],
         "module": "CommonJS",
         "outDir": "build",
