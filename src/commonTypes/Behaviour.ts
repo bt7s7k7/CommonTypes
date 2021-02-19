@@ -2,7 +2,9 @@ import { Constructor } from "./types"
 
 export interface Behaviour<A, R> {
     new(options: A): R,
-    types: Record<string, Behaviour.Type>
+    types: Record<string, Behaviour.Type>,
+    dataSymbol: symbol,
+    within(target: unknown): target is R
 }
 
 
@@ -33,7 +35,7 @@ export namespace Behaviour {
                 impl(name, callback): any {
                     let superClass: Constructor = class {
                         constructor(args: any) {
-                            for (const [key, { data: dataSymbol }] of Object.entries(symbols)) {
+                            for (const [key, { dataSymbol }] of Object.entries(realTypes)) {
                                 const data = args[key]
                                 // @ts-ignore
                                 this[dataSymbol] = data
@@ -43,24 +45,24 @@ export namespace Behaviour {
 
                     const implType: Type = {
                         name,
-                        create: callback
+                        create: callback,
+                        dataSymbol: Symbol(`${name}!data`) as typeof DATA_SYMBOL
                     }
 
                     const realTypes = { ...types, [name]: implType }
 
-                    const symbols: Record<string, { data: typeof DATA_SYMBOL }> = {}
-
                     for (const ctor of Object.values(realTypes)) {
-                        const data: typeof DATA_SYMBOL = Symbol(`${ctor.name}!data`) as typeof DATA_SYMBOL
-                        symbols[ctor.name] = { data }
-
-                        superClass = ctor.create(superClass, data)
+                        superClass = ctor.create(superClass, ctor.dataSymbol)
                     }
 
                     const behaviourCtor = superClass
 
                     Object.assign(behaviourCtor, {
-                        types: realTypes
+                        types: realTypes,
+                        dataSymbol: implType.dataSymbol,
+                        within(target) {
+                            return typeof target == "object" && target != null && this.dataSymbol! in target
+                        }
                     } as Partial<Behaviour<any, any>>)
 
                     return behaviourCtor
@@ -73,7 +75,8 @@ export namespace Behaviour {
 
     export interface Type {
         name: string,
-        create: (base: Constructor<{ [DATA_SYMBOL]: any }>, data: typeof DATA_SYMBOL) => Constructor
+        create: (base: Constructor<{ [DATA_SYMBOL]: any }>, data: typeof DATA_SYMBOL) => Constructor,
+        dataSymbol: typeof DATA_SYMBOL
     }
 }
 

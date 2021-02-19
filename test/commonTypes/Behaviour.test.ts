@@ -36,10 +36,13 @@ describeMember(() => Behaviour, () => {
 
         it("Should create a behaviour", () => {
             const { A } = createBehaviourA()
+            const { B } = createBehaviourB({ A })
 
             const a = new A({ A: { label: "Label" } })
 
             expect(a.label).to.equal("Label")
+            expect(A.within(a)).to.be.true
+            expect(B.within(a)).to.be.false
         })
 
         it("Should properly inherit values from base behaviours", () => {
@@ -51,6 +54,7 @@ describeMember(() => Behaviour, () => {
             expect(b.height).to.equal(58)
             expect(b.sign).to.equal("Label 58")
             expect(b.label).to.equal("Label")
+            expect(bA.A.within(b)).to.be.true
         })
 
         it("Should correctly execute shared dependencies", () => {
@@ -64,7 +68,6 @@ describeMember(() => Behaviour, () => {
                 .impl("D", (base, data) => class D extends base {
                     public superInfo = this.sign + " " + this.info
                 })
-            type D = InstanceType<typeof D>
 
             const d = new D({ A: { label: "Label" }, B: { height: 17 }, C: { width: 25 }, D: {} })
 
@@ -73,6 +76,10 @@ describeMember(() => Behaviour, () => {
             expect(d.label).to.equal("Label")
             expect(d.info).to.equal("Label 25")
             expect(d.superInfo).to.equal("Label 17 Label 25")
+            expect(bA.A.within(d)).to.be.true
+            expect(B.within(d)).to.be.true
+            expect(C.within(d)).to.be.true
+            expect(D.within(d)).to.be.true
         })
     })
 })
