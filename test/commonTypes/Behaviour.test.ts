@@ -38,7 +38,7 @@ describeMember(() => Behaviour, () => {
             const { A } = createBehaviourA()
             const { B } = createBehaviourB({ A })
 
-            const a = new A({ A: { label: "Label" } })
+            const a = new A({ label: "Label" })
 
             expect(a.label).to.equal("Label")
             expect(A.within(a)).to.be.true
@@ -49,7 +49,7 @@ describeMember(() => Behaviour, () => {
             const bA = createBehaviourA()
             const { B } = createBehaviourB(bA)
 
-            const b = new B({ A: { label: "Label" }, B: { height: 58 } })
+            const b = new B({ label: "Label", height: 58 })
 
             expect(b.height).to.equal(58)
             expect(b.sign).to.equal("Label 58")
@@ -69,7 +69,7 @@ describeMember(() => Behaviour, () => {
                     public superInfo = this.sign + " " + this.info
                 })
 
-            const d = new D({ A: { label: "Label" }, B: { height: 17 }, C: { width: 25 }, D: {} })
+            const d = new D({ label: "Label", height: 17, width: 25 })
 
             expect(d.height).to.equal(17)
             expect(d.sign).to.equal("Label 17")

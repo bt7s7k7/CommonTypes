@@ -17,7 +17,7 @@ export namespace Behaviour {
 
     export interface Builder<D, A, R> {
         extend<AA, AR>(behaviour: Behaviour<AA, AR>): Builder<D, A & AA, R & AR>
-        impl<K extends string, T extends Constructor>(name: K, callback: (base: Constructor<R & { [DATA_SYMBOL]: D }>, data: typeof DATA_SYMBOL) => T): Behaviour<A & { [P in K]: D }, R & Omit<InstanceType<T>, typeof DATA_SYMBOL>>
+        impl<K extends string, T extends Constructor>(name: K, callback: (base: Constructor<R & { [DATA_SYMBOL]: D }>, data: typeof DATA_SYMBOL) => T): Behaviour<A & D, R & Omit<InstanceType<T>, typeof DATA_SYMBOL>>
     }
 
     export function create<D = {}>(): Builder<D, {}, {}> {
@@ -34,11 +34,10 @@ export namespace Behaviour {
                 },
                 impl(name, callback): any {
                     let superClass: Constructor = class {
-                        constructor(args: any) {
-                            for (const [key, { dataSymbol }] of Object.entries(realTypes)) {
-                                const data = args[key]
+                        constructor(arg: any) {
+                            for (const { dataSymbol } of Object.values(realTypes)) {
                                 // @ts-ignore
-                                this[dataSymbol] = data
+                                this[dataSymbol] = arg
                             }
                         }
                     }
