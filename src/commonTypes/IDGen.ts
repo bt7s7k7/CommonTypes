@@ -16,4 +16,6 @@ export namespace IDGen {
 
         return base64.replace(/\//g, "_").replace(/\+/g, "-").replace(/=/g, "")
     }
+
+    export const getID = random()
 }
