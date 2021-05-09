@@ -8,7 +8,8 @@
         "test": "ts-node node_modules/mocha/bin/mocha \"test/**/*.test.ts\"",
         "coverage": "nyc --exclude **/*.test.ts -r text -e .ts -x \"*.test.ts\" npm run test",
         "test-dev": "ts-node-dev --preserve-symlinks -T --respawn --cls --watch src,test --inspect -- node_modules/mocha/bin/mocha \"test/**/*.test.ts\"",
-        "install": "ucpem install || curl -L https://github.com/bt7s7k7/UCPeM/releases/latest/download/ucpem.js | node - install"
+        "install": "ucpem install || curl -L https://github.com/bt7s7k7/UCPeM/releases/latest/download/ucpem.js | node - install",
+        "dev": "ts-node-dev --preserve-symlinks -T --respawn --cls --watch src --inspect -- src/app/app.ts"
     },
     "devDependencies": {
         "@types/chai": "^4.2.12",
