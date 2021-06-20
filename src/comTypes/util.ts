@@ -110,3 +110,10 @@ export function voidNaN(value: number) {
     if (isNaN(value)) return null
     else return Number(value)
 }
+
+export function makeBound<T extends any[], R>(...args: T) {
+    return (f: { (...args: T): R }) => {
+        return (f as any).bind(null, ...args) as { (): R }
+    }
+}
+
