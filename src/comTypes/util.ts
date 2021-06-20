@@ -117,3 +117,6 @@ export function makeBound<T extends any[], R>(...args: T) {
     }
 }
 
+export function autoFilter<T>(source: (T | null | false | undefined | T[])[]) {
+    return source.filter(v => v).flatMap(v => v instanceof Array ? v : [v]) as T[]
+}
