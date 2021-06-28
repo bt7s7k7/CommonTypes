@@ -120,3 +120,73 @@ export function makeBound<T extends any[], R>(...args: T) {
 export function autoFilter<T>(source: (T | null | false | undefined | T[])[]) {
     return source.filter(v => v).flatMap(v => v instanceof Array ? v : [v]) as T[]
 }
+
+const BASE_64_INDEX = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+
+export function toBase64Binary(source: ArrayBuffer) {
+    const input = new Uint8Array(source)
+    const inputLength = input.length
+    const segmentsCount = Math.ceil(inputLength / 3)
+
+    const outLength = segmentsCount * 4
+    const output = new Array<string>(outLength)
+
+    for (let i = 0; i < segmentsCount; i++) {
+        const aO = input[i * 3 + 0]
+        const bO = input[i * 3 + 1]
+        const cO = input[i * 3 + 2]
+        const a = aO ?? 0
+        const b = bO ?? 0
+        const c = cO ?? 0
+
+        const number = (a << 16) + (b << 8) + c
+
+        output[i * 4 + 0] = BASE_64_INDEX[(number >>> 18) & 63]
+        output[i * 4 + 1] = BASE_64_INDEX[(number >>> 12) & 63]
+        output[i * 4 + 2] = bO == undefined && cO == undefined ? "=" : BASE_64_INDEX[(number >>> 6) & 63]
+        output[i * 4 + 3] = cO == undefined ? "=" : BASE_64_INDEX[(number >>> 0) & 63]
+    }
+
+    return output.join("")
+}
+
+export function fromBase64Binary(input: string) {
+    const inputLength = input.length
+    const segmentsCount = Math.ceil(inputLength / 4)
+
+    const paddingIndex = input.indexOf("=")
+    const paddingLength = paddingIndex == -1 ? 0 : input.length - paddingIndex
+
+    const outputLength = segmentsCount * 3 - paddingLength
+    const output = new Uint8Array(outputLength)
+
+    const processChar = (char: string | undefined) => {
+        if (char == undefined) return 0
+        if (char == "=") return 0
+
+        const index = BASE_64_INDEX.indexOf(char)
+        if (index == -1) throw new Error("Invalid base64 character " + JSON.stringify(char))
+        return index
+    }
+
+    for (let i = 0; i < segmentsCount; i++) {
+        const a = processChar(input[i * 4 + 0])
+        const b = processChar(input[i * 4 + 1])
+        const c = processChar(input[i * 4 + 2])
+        const d = processChar(input[i * 4 + 3])
+
+        const number = (a << 18) + (b << 12) + (c << 6) + d
+
+        output[i * 3 + 0] = (number >>> 16) & 255
+        output[i * 3 + 1] = (number >>> 8) & 255
+        output[i * 3 + 2] = number & 255
+    }
+
+    return output
+}
+
+export function makeDataURL(type: string, data: ArrayBuffer | string) {
+    data = typeof data == "string" ? data : toBase64Binary(data)
+
+    return `data:${type};base64,${data}`
+}
