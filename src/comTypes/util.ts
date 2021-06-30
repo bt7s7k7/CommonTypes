@@ -106,6 +106,11 @@ export function sideEffect<T>(thunk: (v: T) => void): (v: T) => T {
     }
 }
 
+export function transform<T>(value: T, thunk: (v: T) => void) {
+    thunk(value)
+    return value
+}
+
 export function voidNaN(value: number) {
     if (isNaN(value)) return null
     else return Number(value)
