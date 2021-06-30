@@ -195,3 +195,10 @@ export function makeDataURL(type: string, data: ArrayBuffer | string) {
 
     return `data:${type};base64,${data}`
 }
+
+export function runString({ source, env = {}, url }: { source: string, env?: Record<string, any>, url?: string }) {
+    if (url) source += "\n//# sourceURL=" + url
+    const envEntries = Object.entries(env)
+    const compiled = new Function(...envEntries.map(([key]) => key), source)
+    return compiled(...envEntries.map(([, value]) => value))
+}
