@@ -106,9 +106,8 @@ export function sideEffect<T>(thunk: (v: T) => void): (v: T) => T {
     }
 }
 
-export function transform<T>(value: T, thunk: (v: T) => void) {
-    thunk(value)
-    return value
+export function transform<T, R>(value: T, thunk: (v: T) => R) {
+    return thunk(value)
 }
 
 export function voidNaN(value: number) {
