@@ -201,3 +201,9 @@ export function runString({ source, env = {}, url }: { source: string, env?: Rec
     const compiled = new Function(...envEntries.map(([key]) => key), source)
     return compiled(...envEntries.map(([, value]) => value))
 }
+
+export function delayedPromise(timeout: number) {
+    return new Promise<void>(resolve => setTimeout(() => resolve(), timeout))
+}
+
+}
