@@ -206,4 +206,6 @@ export function delayedPromise(timeout: number) {
     return new Promise<void>(resolve => setTimeout(() => resolve(), timeout))
 }
 
+export function assertType<T>(value: any): value is T {
+    return true
 }
