@@ -209,3 +209,20 @@ export function delayedPromise(timeout: number) {
 export function assertType<T>(value: any): value is T {
     return true
 }
+
+export function weightedRandom<T>(source: Iterable<{ value: T, weight: number }>, sum: null | number = null) {
+    if (sum == null) {
+        sum = 0
+        for (const entry of source) {
+            sum += entry.weight
+        }
+    }
+
+    let choice = Math.random() * sum
+    for (const entry of source) {
+        if (choice < entry.weight) return entry.value
+        choice -= entry.weight
+    }
+
+    throw new Error("Failed assertion: no choice picked from weighted random")
+}
