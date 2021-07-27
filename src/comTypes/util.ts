@@ -93,7 +93,7 @@ export function toString(value: any): string {
 
 export function stringifyAddress(address: string | { address?: string, port?: string | number } | null) {
     if (address && typeof address == "object") {
-        return `http://[${address.address}]:${address.port}`
+        return `[${address.address}]:${address.port}`
     } else {
         return toString(address)
     }
