@@ -226,3 +226,9 @@ export function weightedRandom<T>(source: Iterable<{ value: T, weight: number }>
 
     throw new Error("Failed assertion: no choice picked from weighted random")
 }
+
+export function* range(length: number) {
+    for (let i = 0; i < length; i++) {
+        yield i
+    }
+}
