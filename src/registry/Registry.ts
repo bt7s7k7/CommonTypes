@@ -83,7 +83,9 @@ export namespace Registry {
             return ret
         }
 
-        public [Symbol.iterator] = () => this.lookupMap[Symbol.iterator]()
+        public [Symbol.iterator]() {
+            return this.lookupMap[Symbol.iterator]()
+        }
 
         protected readonly lookupMap = new Map<K, T>()
         protected readonly reverseLookupMap = new Map<T, K>()
@@ -134,6 +136,14 @@ export namespace Registry {
 
         public find(key: K) {
             return this.findAll(key).values().next().value as NonNullable<T>
+        }
+
+        public *[Symbol.iterator]() {
+            for (const [key, set] of this.valueSetLookupMap) {
+                for (const item of set) {
+                    yield [key, item] as [typeof key, typeof item]
+                }
+            }
         }
 
         protected readonly valueSetLookupMap = new Map<K, Set<T>>()
