@@ -232,3 +232,7 @@ export function* range(length: number) {
         yield i
     }
 }
+
+export function modify<T>(target: T, props: Partial<T>) {
+    return Object.assign(target, props) as T
+}
