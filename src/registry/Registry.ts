@@ -47,6 +47,7 @@ export namespace Registry {
         [Symbol.iterator]: () => Generator<[U, {
             [P in keyof InstanceKeys<U, T>]: KeyType<InstanceKeys<U, T>[P]>
         }]>
+        values(): Generator<U>
     }
 
     export class Key<T = any, K = any> {
@@ -256,6 +257,13 @@ export namespace Registry {
                         const target = this.keys[0] as Key<any, void>
                         for (const [, record] of target) {
                             yield [record, Object.fromEntries(this.keys.map(v => [v.index, v.findReverse(record)]))]
+                        }
+                    }
+
+                    this.values = function* () {
+                        const target = this.keys[0] as Key<any, void>
+                        for (const [, record] of target) {
+                            yield record
                         }
                     }
 
