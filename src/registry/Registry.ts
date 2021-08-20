@@ -40,6 +40,7 @@ export namespace Registry {
 
     export type Instance<U, T extends TypeOptions> = InstanceKeys<U, T> & {
         register(record: U, options?: RegisterOptions): Instance<U, T>
+        registerMany(record: Iterable<U>, options?: RegisterOptions): Instance<U, T>
         unregister(record: U): Instance<U, T>
         keys: Key[],
         nextID(): string
@@ -226,6 +227,14 @@ export namespace Registry {
 
                     this.register = (record: any, options = {}) => {
                         this.keys.forEach(v => v.register(record, options))
+                        return this
+                    }
+
+                    this.registerMany = (records: Iterable<any>, options = {}) => {
+                        for (const record of records) {
+                            this.register(record, options)
+                        }
+
                         return this
                     }
 
