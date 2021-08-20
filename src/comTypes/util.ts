@@ -236,3 +236,24 @@ export function* range(length: number) {
 export function modify<T>(target: T, props: Partial<T>) {
     return Object.assign(target, props) as T
 }
+
+export function unreachable() {
+    return new Error("Assertion failed: Reached unreachable code")
+}
+
+export function bindObjectFunction<T>(object: T): T {
+    for (const key in object) {
+        if (typeof object[key] == "function") {
+            object[key] = (object[key] as unknown as Function).bind(object)
+        }
+    }
+
+    return object
+}
+
+export function wrapFunction<T extends (...args: any) => any>(target: T, wrapper: (target: T) => (...args: Parameters<T>) => ReturnType<T>) {
+    return function(this: any, ...args: Parameters<T>) {
+        const boundTarget = target.bind(this) as T
+        return wrapper(boundTarget)(...args)
+    } as T
+}
