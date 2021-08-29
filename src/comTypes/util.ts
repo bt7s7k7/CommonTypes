@@ -241,10 +241,15 @@ export function unreachable() {
     return new Error("Assertion failed: Reached unreachable code")
 }
 
-export function bindObjectFunction<T>(object: T): T {
+export function bindObjectFunction<T>(object: T, transform?: (v: Function, key: string) => Function): T {
     for (const key in object) {
+        if (key[0] == key[0].toUpperCase()) continue
+
         if (typeof object[key] == "function") {
-            object[key] = (object[key] as unknown as Function).bind(object)
+            let func = (object[key] as unknown as Function)
+            func = func.bind(object)
+            if (transform) func = transform(func, key)
+            void ((object as any)[key] = func)
         }
     }
 
@@ -252,8 +257,100 @@ export function bindObjectFunction<T>(object: T): T {
 }
 
 export function wrapFunction<T extends (...args: any) => any>(target: T, wrapper: (target: T) => (...args: Parameters<T>) => ReturnType<T>) {
-    return function(this: any, ...args: Parameters<T>) {
+    return function (this: any, ...args: Parameters<T>) {
         const boundTarget = target.bind(this) as T
         return wrapper(boundTarget)(...args)
     } as T
+}
+
+const VLQ_BASE_SHIFT = 5
+const VLQ_BASE = 1 << VLQ_BASE_SHIFT
+const VLQ_BASE_MASK = VLQ_BASE - 1
+const VLQ_CONTINUE = VLQ_BASE
+export function vlqDecode(source: Uint8Array | number[] | string) {
+    if (typeof source == "string") source = source.split("").map(v => BASE_64_INDEX.indexOf(v))
+
+    const result: number[] = []
+
+    let value = 0
+    let shift = 0
+
+    for (const segment of source) {
+        const digit = segment & VLQ_BASE_MASK
+        value += digit << shift
+        shift += VLQ_BASE_SHIFT
+
+        if ((segment & VLQ_CONTINUE) == 0) {
+            const negate = (value & 1) == 1
+            value >>= 1
+            result.push(negate ? -value : value)
+            value = 0
+            shift = 0
+        }
+    }
+
+    return result
+}
+
+type VLQEncodeType = "base64" | "binary" | "array"
+type VLQEncodeResult = {
+    "base64": string,
+    "binary": Uint8Array,
+    "array": number[]
+}
+export function vlqEncode(value: number | number[]): string
+export function vlqEncode<T extends VLQEncodeType>(value: number | number[], encoding: T): VLQEncodeResult[T]
+export function vlqEncode(value: number | number[], encoding: VLQEncodeType = "base64"): any {
+    let result: number[] = []
+    if (value instanceof Array) {
+        result = value.flatMap(v => vlqEncode(v, "array"))
+    } else {
+        if (value < 0) value = ((-value) << 1) | 1
+        else value <<= 1
+
+        do {
+            let digit = value & VLQ_BASE_MASK
+            value >>>= VLQ_BASE_SHIFT
+            if (value > 0) digit |= VLQ_CONTINUE
+            result.push(digit)
+        } while (value > 0)
+
+    }
+    if (encoding == "array") return result
+    if (encoding == "base64") return result.map(v => BASE_64_INDEX[v]).join("")
+    if (encoding == "binary") return new Uint8Array(result)
+}
+
+export function reverseIndexOf(string: string, substring: string, maxPos: number) {
+    while (!string.startsWith(substring, maxPos) && maxPos > -1) maxPos--
+    return maxPos
+}
+
+export function* findOccurrences(target: string, substring: string, pos = 0) {
+    pos--
+    while ((pos = target.indexOf(substring, pos + 1)) != -1) {
+        yield pos
+    }
+}
+
+export function countOccurrences(target: string, substring: string, pos = 0, maxPos: number | null = null) {
+    let count = 0
+    pos--
+    while ((pos = target.indexOf(substring, pos + 1)) != -1) {
+        if (maxPos != null && pos >= maxPos) break
+        count++
+    }
+
+    return count
+}
+
+export function findNthOccurrence(target: string, substring: string, number: number, pos = 0) {
+    let count = 0
+    pos--
+    while ((pos = target.indexOf(substring, pos + 1)) != -1) {
+        count++
+        if (count == number) return pos
+    }
+
+    return -1
 }
