@@ -1,24 +1,25 @@
 import { Constructor } from "./types"
 
 export function makeRandomID() {
-    const makeSegment = () => parseInt(Math.random().toString().substr(2)).toString(16)
+    const bytes = new Array<number>(16)
 
-    const source = (makeSegment() + makeSegment() + makeSegment()).substr(0, 32)
-
-    const bytes: number[] = []
-    for (let i = 0; i < source.length / 2; i++) {
-        const byte = source.substr(i * 2, 2)
-        bytes.push(parseInt(byte, 16))
+    for (let i = 0; i < 16; i++) {
+        bytes[i] = Math.floor(Math.random() * 256)
     }
-    const binary = String.fromCharCode(...bytes)
-    const base64 = toBase64(binary)
+
+    const base64 = toBase64Binary(bytes)
 
     return base64.replace(/\//g, "_").replace(/\+/g, "-").replace(/=/g, "")
 }
 
 export function toBase64(source: string): string {
-    // @ts-ignore
-    return "btoa" in globalThis ? globalThis.btoa(source) : "Buffer" in globalThis ? Buffer.from(source, "binary").toString("base64") : (() => { throw new Error("No function found to get base64") })()
+    return (
+        // @ts-ignore
+        "btoa" in globalThis ? globalThis.btoa(source)
+            // @ts-ignore
+            : "Buffer" in globalThis ? Buffer.from(source, "binary").toString("base64")
+                : toBase64Binary(asciiToBinary(source))
+    )
 }
 
 export function fromBase64(source: string): string {
@@ -127,8 +128,8 @@ export function autoFilter<T>(source: (T | null | false | undefined | T[])[]) {
 
 const BASE_64_INDEX = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 
-export function toBase64Binary(source: ArrayBuffer) {
-    const input = new Uint8Array(source)
+export function toBase64Binary(source: ArrayBuffer | number[]) {
+    const input = source instanceof Array ? source : new Uint8Array(source)
     const inputLength = input.length
     const segmentsCount = Math.ceil(inputLength / 3)
 
@@ -353,4 +354,107 @@ export function findNthOccurrence(target: string, substring: string, number: num
     }
 
     return -1
+}
+
+export class Task<T = void> {
+    protected state:
+        { type: "loading" }
+        | { type: "resolved", value: T }
+        | { type: "rejected", error: any }
+        | { type: "pending", resolve: (value: T) => void, reject: (error: any) => void }
+        = { type: "loading" }
+
+    protected promise = new Promise<T>((resolve, reject) => {
+        if (this.state.type == "loading") this.state = { type: "pending", reject, resolve }
+        else if (this.state.type == "rejected") reject(this.state.error)
+        else if (this.state.type == "resolved") resolve(this.state.value)
+    })
+
+    public get pending() {
+        return this.state.type == "pending" || this.state.type == "loading"
+    }
+
+    public get resolved() {
+        return this.state.type == "resolved"
+    }
+
+    public get rejected() {
+        return this.state.type == "rejected"
+    }
+
+    public get value() {
+        if (this.state.type == "resolved") return this.state.value
+        else return null
+    }
+
+    public get error() {
+        if (this.state.type == "rejected") return this.state.error
+        else return null
+    }
+
+    public resolve(value: T) {
+        if (this.state.type == "pending") this.state.resolve(value)
+        else if (this.state.type != "loading") throw new Error("Task already finished")
+        this.state = { type: "resolved", value }
+    }
+
+    public reject(error: any) {
+        if (this.state.type == "pending") this.state.reject(error)
+        else if (this.state.type != "loading") throw new Error("Task already finished")
+        this.state = { type: "rejected", error }
+    }
+
+    public then(...args: Parameters<Promise<T>["then"]>): ReturnType<Promise<T>["then"]> {
+        return this.promise.then(...args)
+    }
+
+    public catch(...args: Parameters<Promise<T>["catch"]>): ReturnType<Promise<T>["catch"]> {
+        return this.promise.catch(...args)
+    }
+
+    public finally(...args: Parameters<Promise<T>["finally"]>): ReturnType<Promise<T>["finally"]> {
+        return this.promise.finally(...args)
+    }
+}
+
+export function asciiToBinary(text: string) {
+    const result = new Uint8Array(text.length)
+
+    for (let i = 0, len = text.length; i < len; i++) {
+        let value = text.charCodeAt(i)
+        if (value > 255) value = 63
+        result[i] = value
+    }
+
+    return result
+}
+
+export function uint8ToAscii(source: Uint8Array | number[]) {
+    return String.fromCharCode(...source)
+}
+
+export function* iterableMap<T, R>(iterable: Iterable<T>, thunk: (v: T, i: number) => R) {
+    let i = 0
+    for (const value of iterable) {
+        yield thunk(value, i++)
+    }
+}
+
+export function unzip<T>(source: ArrayLike<T>, predicate: (v: T, i: number) => boolean) {
+    const pairs: [T, T[]][] = []
+    for (let i = 0, len = source.length; i < len; i++) {
+        const v = source[i]
+        const isHeader = predicate(v, i)
+        if (isHeader) {
+            pairs.push([v, []])
+        } else {
+            if (pairs.length > 0) {
+                pairs[pairs.length - 1][1].push(v)
+            } else {
+                throw new Error("Not header first element in unzip")
+            }
+        }
+    }
+
+    return pairs
 }
