@@ -458,3 +458,8 @@ export function unzip<T>(source: ArrayLike<T>, predicate: (v: T, i: number) => b
 
     return pairs
 }
+
+export function voidValue<T>(target: T, value: T) {
+    if (target == value) return null
+    return target
+}
