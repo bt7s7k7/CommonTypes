@@ -197,7 +197,7 @@ export namespace Registry {
                 return createPrototype({ ...data, computed: [...data.computed, { key, getter }] }) as any
             },
             addKeyShared(key) {
-                return createPrototype({ ...data, keysShared: [...data.keys, key] }) as any
+                return createPrototype({ ...data, keysShared: [...data.keysShared, key] }) as any
             },
             addComputedKeyShared(key, getter) {
                 return createPrototype({ ...data, computedShared: [...data.computedShared, { key, getter }] }) as any
