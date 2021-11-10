@@ -463,3 +463,24 @@ export function voidValue<T>(target: T, value: T) {
     if (target == value) return null
     return target
 }
+
+const NUMBER_MIN = "0".charCodeAt(0)
+const NUMBER_MAX = "9".charCodeAt(0)
+const ALPHA_MIN_1 = "a".charCodeAt(0)
+const ALPHA_MAX_1 = "z".charCodeAt(0)
+const ALPHA_MIN_2 = "A".charCodeAt(0)
+const ALPHA_MAX_2 = "Z".charCodeAt(0)
+export function isNumber(char: string) {
+    if (!char) return false
+    const code = char.charCodeAt(0)
+    return code >= NUMBER_MIN && code <= NUMBER_MAX
+}
+
+export function isAlpha(char: string) {
+    if (!char) return false
+    const code = char.charCodeAt(0)
+    return (
+        (code >= ALPHA_MIN_1 && code <= ALPHA_MAX_1) ||
+        (code >= ALPHA_MIN_2 && code <= ALPHA_MAX_2)
+    )
+}
