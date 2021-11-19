@@ -488,3 +488,11 @@ export function isAlpha(char: string) {
 export function cloneArray<T>(source: T[]) {
     return ([] as T[]).concat(source)
 }
+
+export function createShadowObject<T extends Record<string, any>>(target: T) {
+    const ret = {} as T
+
+    Object.defineProperties(ret, Object.fromEntries(Object.keys(target).map((key) => [key, { get: () => target[key], set: v => target[key as keyof T] = v }])))
+
+    return ret
+}
