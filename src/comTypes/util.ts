@@ -484,3 +484,7 @@ export function isAlpha(char: string) {
         (code >= ALPHA_MIN_2 && code <= ALPHA_MAX_2)
     )
 }
+
+export function cloneArray<T>(source: T[]) {
+    return ([] as T[]).concat(source)
+}
