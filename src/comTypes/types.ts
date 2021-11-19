@@ -3,3 +3,5 @@ export type Constructor<T = any> = { new(...args: any[]): T }
 export type Depromisify<T> = T extends Promise<infer U> ? Depromisify<U> : T
 export type FilterPublic<T> = Pick<T, keyof T>
 export type Readwrite<T> = { -readonly [P in keyof T]: T[P] }
+export type Entry<T extends Record<any, any>> = [keyof T, T[keyof T]]
+export type Values<T extends Record<any, any>> = T[keyof T]
