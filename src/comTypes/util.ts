@@ -238,8 +238,8 @@ export function modify<T>(target: T, props: Partial<T>) {
     return Object.assign(target, props) as T
 }
 
-export function unreachable(): never {
-    throw new Error("Assertion failed: Reached unreachable code")
+export function unreachable(reason = "Reached unreachable code"): never {
+    throw new Error("Assertion failed: " + reason)
 }
 
 export function bindObjectFunction<T>(object: T, transform?: (v: Function, key: string) => Function): T {
