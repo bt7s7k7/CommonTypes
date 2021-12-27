@@ -54,7 +54,7 @@ export namespace Path {
 
         const nameStart = path.lastIndexOf("/")
         const basename = nameStart == -1 ? path : path.slice(nameStart + 1)
-        const pathname = nameStart == -1 ? "" : path.slice(0, nameStart)
+        const pathname = nameStart == -1 ? "/" : (path.slice(0, nameStart) || "/")
 
         const extStart = basename.lastIndexOf(".")
         const extname = extStart != 0 && extStart != -1 ? basename.slice(extStart) : ""
