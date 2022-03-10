@@ -504,3 +504,26 @@ export function createShadowObject<T extends Record<string, any>>(target: T) {
 
     return ret
 }
+
+export function binarySearch<T>(array: T[], comparator: (a: T) => number) {
+    let low = 0
+    let high = array.length - 1
+
+    while (low <= high) {
+        const index = (high + low) >> 1
+        const diff = comparator(array[index])
+        if (diff > 0) {
+            low = index + 1
+        } else if (diff < 0) {
+            high = index - 1
+        } else {
+            return index
+        }
+    }
+
+    return -low - 1
+}
+
+export function mutate<T>(target: T, update: Partial<T>) {
+    return Object.assign(target, update) as T
+}
