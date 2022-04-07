@@ -493,8 +493,28 @@ export function isAlpha(char: string) {
     )
 }
 
+export function isWord(char: string) {
+    return isAlpha(char) || isNumber(char) || char == "_"
+}
+
 export function cloneArray<T>(source: T[]) {
     return ([] as T[]).concat(source)
+}
+
+export function quickFilter<T>(source: T[], predicate: (v: T) => boolean) {
+    let last = source.length - 1
+
+    for (let i = 0; i < last;) {
+        if (predicate(source[i])) {
+            i++
+        } else {
+            source[i] = source[last]
+            last--
+        }
+    }
+
+    source.length = last + 1
+    return source
 }
 
 export function createShadowObject<T extends Record<string, any>>(target: T) {
