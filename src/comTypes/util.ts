@@ -544,6 +544,43 @@ export function binarySearch<T>(array: T[], comparator: (a: T) => number) {
     return -low - 1
 }
 
+export function insertSorted<T>(target: T, array: T[], comparator: (a: T, target: T) => number) {
+    const index = binarySearch(array, a => comparator(target, a))
+    if (index >= 0) {
+        array.splice(index + 1, 0, target)
+    } else {
+        array.splice(-index - 1, 0, target)
+    }
+}
+
 export function mutate<T>(target: T, update: Partial<T>) {
     return Object.assign(target, update) as T
+}
+
+export function fuzzySearch<T>(input: string, options: T[], getter: (v: T) => string) {
+    const filteredOptions: { option: T, cost: number }[] = []
+
+    input = input.toLowerCase()
+
+    for (let option of options) {
+        const optionText = getter(option).toLowerCase()
+        let cost = 0
+        let inputIndex = 0
+
+        for (let i = 0; i < optionText.length; i++) {
+            if (inputIndex == input.length) break
+
+            if (optionText[i] == input[inputIndex]) {
+                inputIndex++
+            } else {
+                cost++
+            }
+        }
+
+        if (inputIndex == input.length) {
+            insertSorted({ option, cost }, filteredOptions, (a, b) => a.cost - b.cost)
+        }
+    }
+
+    return filteredOptions
 }
