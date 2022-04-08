@@ -525,6 +525,13 @@ export function createShadowObject<T extends Record<string, any>>(target: T) {
     return ret
 }
 
+/** 
+ * Returns the index of the found element based on
+ * the comparator function. If the element is not found,
+ * returns the index the element would have been, just negative.
+ * 
+ * To get the positive index use `-index - 1`
+ **/
 export function binarySearch<T>(array: T[], comparator: (a: T) => number) {
     let low = 0
     let high = array.length - 1
