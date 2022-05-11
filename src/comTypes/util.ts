@@ -591,3 +591,19 @@ export function fuzzySearch<T>(input: string, options: T[], getter: (v: T) => st
 
     return filteredOptions
 }
+
+export function camelToSnakeCase(camel: string) {
+    return camel.replace(/^./, v => v.toLowerCase()).replace(/[A-Z]/g, v => "_" + v.toLowerCase())
+}
+
+export function snakeToCamelCase(snake: string) {
+    return snake.replace(/_([a-z])/, (_, v) => v.toUpperCase())
+}
+
+export function snakeToPythonCase(snake: string) {
+    return snakeToCamelCase(snake).replace(/^./, v => v.toUpperCase())
+}
+
+export function camelToTitleCase(camel: string) {
+    return camel.replace(/^./, v => v.toLowerCase()).replace(/[A-Z]/g, v => " " + v).replace(/^./, v => v.toUpperCase())
+}
