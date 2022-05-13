@@ -607,3 +607,9 @@ export function snakeToPythonCase(snake: string) {
 export function camelToTitleCase(camel: string) {
     return camel.replace(/^./, v => v.toLowerCase()).replace(/[A-Z]/g, v => " " + v).replace(/^./, v => v.toUpperCase())
 }
+
+export function* joinIterable<T>(...iterators: Iterable<T>[]) {
+    for (const iterator of iterators) {
+        yield* iterator
+    }
+}
