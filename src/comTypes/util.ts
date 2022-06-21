@@ -423,6 +423,10 @@ export class Task<T = void> {
     public finally(...args: Parameters<Promise<T>["finally"]>): ReturnType<Promise<T>["finally"]> {
         return this.promise.finally(...args)
     }
+
+    public asPromise() {
+        return this.promise
+    }
 }
 
 export function asciiToBinary(text: string) {
