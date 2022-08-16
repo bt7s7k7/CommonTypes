@@ -654,3 +654,16 @@ export function escapeHTML(source: string) {
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;")
 }
+
+export function iteratorNth<T>(iterator: Iterator<T> | Iterable<T>, index = 0) {
+    if (!("next" in iterator)) {
+        iterator = iterator[Symbol.iterator]()
+    }
+
+    for (let i = 0; ; i++) {
+        const result = iterator.next()
+        if (result.done) throw new RangeError("Iterator ended before nth result was reached")
+
+        if (i == index) return result.value as T
+    }
+}
