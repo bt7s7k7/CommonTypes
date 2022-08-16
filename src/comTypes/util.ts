@@ -617,3 +617,32 @@ export function* joinIterable<T>(...iterators: Iterable<T>[]) {
         yield* iterator
     }
 }
+
+export function transformTree<T>(source: T, replacer: (owner: any, prop: keyof any, value: any) => any) {
+    function visit(owner: any, prop: keyof any, value: any) {
+        const result = replacer(owner, prop, value)
+
+        if (result != null && typeof result == "object") {
+            if (result instanceof Array) {
+                const transformed = new Array(result.length)
+                for (let i = 0; i < result.length; i++) {
+                    transformed[i] = visit(result, i, result[i])
+                }
+
+                return transformed
+            } else {
+                const transformed: any = {}
+                for (const [key, value] of Object.entries(result)) {
+                    transformed[key] = visit(transformed, key, value)
+                }
+
+                return transformed
+            }
+        }
+
+        return result
+    }
+
+    return visit(null, "", source) as T
+}
+}
