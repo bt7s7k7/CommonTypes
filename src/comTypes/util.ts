@@ -645,4 +645,12 @@ export function transformTree<T>(source: T, replacer: (owner: any, prop: keyof a
 
     return visit(null, "", source) as T
 }
+
+export function escapeHTML(source: string) {
+    return source
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;")
 }
