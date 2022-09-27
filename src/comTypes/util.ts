@@ -725,3 +725,62 @@ export function iteratorNth<T>(iterator: Iterator<T> | Iterable<T>, index = 0) {
         if (i == index) return result.value as T
     }
 }
+
+interface GenericParser {
+    input: string
+    index: number
+    skipUntil(predicate: (input: string, index: number) => boolean): boolean
+    readUntil(predicate: (input: string, index: number) => boolean): string
+    readAll(delim: (input: string, index: number) => boolean): string[]
+    isDone(): boolean
+    clone(input?: string): this
+}
+const genericParserPrototype: Omit<GenericParser, "index" | "input"> & ThisType<GenericParser> = {
+    skipUntil(predicate) {
+        while (this.index < this.input.length) {
+            if (predicate(this.input, this.index)) {
+                return true
+            }
+            this.index++
+        }
+
+        return false
+    },
+    readUntil(predicate) {
+        let start = this.index
+        this.skipUntil(predicate)
+        let end = this.index
+
+        return this.input.slice(start, end)
+    },
+    readAll(delim) {
+        const tokens: string[] = []
+        while (!this.isDone()) {
+            tokens.push(this.readUntil(delim))
+            if (!this.isDone()) {
+                tokens.push(this.input[this.index])
+                this.index++
+            }
+        }
+        return tokens
+    },
+    clone(input) {
+        const clone = Object.assign(Object.create(genericParserPrototype), this)
+        if (input != undefined) {
+            clone.input = input
+            clone.index = 0
+        }
+
+        return clone
+    },
+    isDone() {
+        return this.index >= this.input.length
+    },
+}
+export function makeGenericParser<T = {}>(input: string, extend?: T & ThisType<T & GenericParser>) {
+    return Object.assign(
+        Object.create(genericParserPrototype),
+        { input, index: 0 },
+        extend
+    ) as T & GenericParser
+}
