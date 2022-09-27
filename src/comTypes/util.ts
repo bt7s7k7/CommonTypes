@@ -628,6 +628,48 @@ export function camelToTitleCase(camel: string) {
     return camel.replace(/^./, v => v.toLowerCase()).replace(/[A-Z]/g, v => " " + v).replace(/^./, v => v.toUpperCase())
 }
 
+type CaseType = "camel" | "snake" | "kebab" | "pascal" | "title"
+export function convertCase<K extends CaseType | "array">(input: string, inputType: CaseType, outputType: K): K extends "array" ? string[] : string {
+    const parser = makeGenericParser(input)
+    const tokens = parser.readAll(
+        inputType == "camel" || inputType == "pascal" ? (input, index) => isUpperCase(input[index])
+            : inputType == "snake" ? (input, index) => input[index] == "_"
+                : inputType == "kebab" ? (input, index) => input[index] == "-"
+                    : inputType == "title" ? (input, index) => input[index] == " "
+                        : unreachable()
+    )
+
+
+    const words: string[] = []
+    for (let i = 0; i < tokens.length; i++) {
+        if (i % 2 == 1) continue
+
+        let word = tokens[i]
+        if (i != 0 && inputType == "camel" || inputType == "pascal" || inputType == "title") {
+            const prefix = tokens[i - 1]
+            word = prefix.toLowerCase() + word
+        }
+
+        words.push(word)
+    }
+
+    if (inputType == "title") words.shift()
+
+    if (outputType == "array") return words as any
+    if (outputType == "kebab") return words.join("-") as any
+    if (outputType == "snake") return words.join("_") as any
+
+    for (let i = 0; i < words.length; i++) {
+        if (outputType == "camel" && i == 0) continue
+        words[i] = words[i][0].toUpperCase() + words[i].slice(1)
+    }
+
+    if (outputType == "camel" || outputType == "pascal") return words.join("") as any
+    if (outputType == "title") return words.join(" ") as any
+
+    unreachable()
+}
+
 export function* joinIterable<T>(...iterators: Iterable<T>[]) {
     for (const iterator of iterators) {
         yield* iterator
