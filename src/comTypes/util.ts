@@ -497,6 +497,22 @@ export function isAlpha(char: string) {
     )
 }
 
+export function isLowerCase(char: string) {
+    if (!char) return false
+    const code = char.charCodeAt(0)
+    return (
+        (code >= ALPHA_MIN_1 && code <= ALPHA_MAX_1)
+    )
+}
+
+export function isUpperCase(char: string) {
+    if (!char) return false
+    const code = char.charCodeAt(0)
+    return (
+        (code >= ALPHA_MIN_2 && code <= ALPHA_MAX_2)
+    )
+}
+
 export function isWord(char: string) {
     return isAlpha(char) || isNumber(char) || char == "_"
 }
