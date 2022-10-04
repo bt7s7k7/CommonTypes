@@ -667,3 +667,23 @@ export function iteratorNth<T>(iterator: Iterator<T> | Iterable<T>, index = 0) {
         if (i == index) return result.value as T
     }
 }
+
+export function makeObjectByKeyProperty<T, K extends keyof any = string>(list: Iterable<T>, property: keyof T) {
+    const result: Record<K, T> = Object.create(null)
+
+    for (const entry of list) {
+        result[entry[property] as unknown as K] = entry
+    }
+
+    return result
+}
+
+export function makeMapByKeyProperty<T, K extends keyof T>(list: Iterable<T>, property: K) {
+    const result = new Map<T[K], T>()
+
+    for (const entry of list) {
+        result.set(entry[property], entry)
+    }
+
+    return result
+}
