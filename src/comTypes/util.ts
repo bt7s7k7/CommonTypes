@@ -497,6 +497,22 @@ export function isAlpha(char: string) {
     )
 }
 
+export function isLowerCase(char: string) {
+    if (!char) return false
+    const code = char.charCodeAt(0)
+    return (
+        (code >= ALPHA_MIN_1 && code <= ALPHA_MAX_1)
+    )
+}
+
+export function isUpperCase(char: string) {
+    if (!char) return false
+    const code = char.charCodeAt(0)
+    return (
+        (code >= ALPHA_MIN_2 && code <= ALPHA_MAX_2)
+    )
+}
+
 export function isWord(char: string) {
     return isAlpha(char) || isNumber(char) || char == "_"
 }
@@ -612,6 +628,48 @@ export function camelToTitleCase(camel: string) {
     return camel.replace(/^./, v => v.toLowerCase()).replace(/[A-Z]/g, v => " " + v).replace(/^./, v => v.toUpperCase())
 }
 
+type CaseType = "camel" | "snake" | "kebab" | "pascal" | "title"
+export function convertCase<K extends CaseType | "array">(input: string, inputType: CaseType, outputType: K): K extends "array" ? string[] : string {
+    const parser = makeGenericParser(input)
+    const tokens = parser.readAll(
+        inputType == "camel" || inputType == "pascal" ? (input, index) => isUpperCase(input[index])
+            : inputType == "snake" ? (input, index) => input[index] == "_"
+                : inputType == "kebab" ? (input, index) => input[index] == "-"
+                    : inputType == "title" ? (input, index) => input[index] == " "
+                        : unreachable()
+    )
+
+
+    const words: string[] = []
+    for (let i = 0; i < tokens.length; i++) {
+        if (i % 2 == 1) continue
+
+        let word = tokens[i]
+        if (i != 0 && inputType == "camel" || inputType == "pascal" || inputType == "title") {
+            const prefix = tokens[i - 1]
+            word = prefix.toLowerCase() + word
+        }
+
+        words.push(word)
+    }
+
+    if (inputType == "title") words.shift()
+
+    if (outputType == "array") return words as any
+    if (outputType == "kebab") return words.join("-") as any
+    if (outputType == "snake") return words.join("_") as any
+
+    for (let i = 0; i < words.length; i++) {
+        if (outputType == "camel" && i == 0) continue
+        words[i] = words[i][0].toUpperCase() + words[i].slice(1)
+    }
+
+    if (outputType == "camel" || outputType == "pascal") return words.join("") as any
+    if (outputType == "title") return words.join(" ") as any
+
+    unreachable()
+}
+
 export function* joinIterable<T>(...iterators: Iterable<T>[]) {
     for (const iterator of iterators) {
         yield* iterator
@@ -667,6 +725,66 @@ export function iteratorNth<T>(iterator: Iterator<T> | Iterable<T>, index = 0) {
         if (i == index) return result.value as T
     }
 }
+
+interface GenericParser {
+    input: string
+    index: number
+    skipUntil(predicate: (input: string, index: number) => boolean): boolean
+    readUntil(predicate: (input: string, index: number) => boolean): string
+    readAll(delim: (input: string, index: number) => boolean): string[]
+    isDone(): boolean
+    clone(input?: string): this
+}
+const genericParserPrototype: Omit<GenericParser, "index" | "input"> & ThisType<GenericParser> = {
+    skipUntil(predicate) {
+        while (this.index < this.input.length) {
+            if (predicate(this.input, this.index)) {
+                return true
+            }
+            this.index++
+        }
+
+        return false
+    },
+    readUntil(predicate) {
+        let start = this.index
+        this.skipUntil(predicate)
+        let end = this.index
+
+        return this.input.slice(start, end)
+    },
+    readAll(delim) {
+        const tokens: string[] = []
+        while (!this.isDone()) {
+            tokens.push(this.readUntil(delim))
+            if (!this.isDone()) {
+                tokens.push(this.input[this.index])
+                this.index++
+            }
+        }
+        return tokens
+    },
+    clone(input) {
+        const clone = Object.assign(Object.create(genericParserPrototype), this)
+        if (input != undefined) {
+            clone.input = input
+            clone.index = 0
+        }
+
+        return clone
+    },
+    isDone() {
+        return this.index >= this.input.length
+    },
+}
+export function makeGenericParser<T = {}>(input: string, extend?: T & ThisType<T & GenericParser>) {
+    return Object.assign(
+        Object.create(genericParserPrototype),
+        { input, index: 0 },
+        extend
+    ) as T & GenericParser
+}
+
 
 export function makeObjectByKeyProperty<T, K extends keyof any = string>(list: Iterable<T>, property: keyof T) {
     const result: Record<K, T> = Object.create(null)
