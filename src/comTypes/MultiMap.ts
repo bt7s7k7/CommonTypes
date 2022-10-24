@@ -4,12 +4,14 @@ interface KeySpecifier<T, S extends boolean, C extends boolean> {
     type: T
     shared: S
     multiple: C
-    generator: ((value: any) => string) | null
+    generator: ((value: any) => any) | null
 }
 
 interface EntitySpecifier<T> {
     entity: T
 }
+
+const DEFAULT_MAP = new Map()
 
 export class MultiMap<I, T extends Record<string, KeySpecifier<any, boolean, boolean>>> {
     protected sharedKeys = new Map<string, Map<any, Set<I>>>()
@@ -22,7 +24,7 @@ export class MultiMap<I, T extends Record<string, KeySpecifier<any, boolean, boo
         const source = keyType.shared ? this.sharedKeys.get(from as string)!
             : this.uniqueKeys.get(from as string)!
 
-        return (source.get(key)! ?? null) as any
+        return (source.get(key)! ?? (keyType.shared ? DEFAULT_MAP : null)) as any
     }
 
     public get<K extends keyof T>(from: K, key: T[K]["type"]): T[K]["shared"] extends false ? I : ReadonlySet<I> {
@@ -103,7 +105,13 @@ export class MultiMap<I, T extends Record<string, KeySpecifier<any, boolean, boo
     }
 
     public values() {
-        return this.reverseKeys.values()
+        return this.reverseKeys.keys()
+    }
+
+    public clear() {
+        this.reverseKeys.clear()
+        for (const index of this.sharedKeys.values()) index.clear()
+        for (const index of this.uniqueKeys.values()) index.clear()
     }
 
     constructor(
@@ -143,6 +151,14 @@ export namespace MultiMap {
             multiple: true,
             generator
         } as KeySpecifier<T, false, true>
+    }
+
+    export function sharedMultipleKey<T>(generator: KeySpecifier<any, any, any>["generator"] = null) {
+        return {
+            shared: true,
+            multiple: true,
+            generator
+        } as KeySpecifier<T, true, true>
     }
 
     export function autoKey<T>() {
