@@ -242,7 +242,7 @@ export function* range(length: number) {
     }
 }
 
-export function modify<T>(target: T, props: Partial<T>) {
+export function modify<T extends object>(target: T, props: Partial<T>) {
     return Object.assign(target, props) as T
 }
 
@@ -580,7 +580,7 @@ export function insertSorted<T>(target: T, array: T[], comparator: (a: T, target
     }
 }
 
-export function mutate<T>(target: T, update: Partial<T>) {
+export function mutate<T extends object>(target: T, update: Partial<T>) {
     return Object.assign(target, update) as T
 }
 
