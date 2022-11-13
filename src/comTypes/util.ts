@@ -729,6 +729,7 @@ export function iteratorNth<T>(iterator: Iterator<T> | Iterable<T>, index = 0) {
 interface GenericParser {
     input: string
     index: number
+    getCurrent(): string
     skipUntil(predicate: (input: string, index: number) => boolean): boolean
     readUntil(predicate: (input: string, index: number) => boolean): string
     readAll(delim: (input: string, index: number) => boolean): string[]
@@ -776,6 +777,7 @@ const genericParserPrototype: Omit<GenericParser, "index" | "input"> & ThisType<
     isDone() {
         return this.index >= this.input.length
     },
+    getCurrent() { return this.input[this.index] }
 }
 export function makeGenericParser<T = {}>(input: string, extend?: T & ThisType<T & GenericParser>) {
     return Object.assign(
