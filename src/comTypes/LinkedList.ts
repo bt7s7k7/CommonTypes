@@ -50,27 +50,59 @@ export class LinkedList<T> {
         if (node == this.start) this.start = node.next
     }
 
+    public clear() {
+        this.end = null
+        this.start = null
+    }
+
     public *[Symbol.iterator]() {
-        for (var node = this.start; node != null; node = node.next) {
-            yield [node, node.value]
+        for (let node = this.start; node != null; node = node.next) {
+            yield [node, node.value] as [LinkedList.Node<T>, T]
         }
     }
 
+
     public *values() {
-        for (var node = this.start; node != null; node = node.next) {
+        for (let node = this.start; node != null; node = node.next) {
             yield node.value
         }
     }
 
     public *keys() {
-        for (var node = this.start; node != null; node = node.next) {
+        for (let node = this.start; node != null; node = node.next) {
             yield node
+        }
+    }
+
+    constructor(source?: Iterable<T>) {
+        if (source != null) {
+            for (const element of source) {
+                this.push(element)
+            }
         }
     }
 }
 
 export namespace LinkedList {
     export class Node<T> {
+        public *[Symbol.iterator]() {
+            for (let node: Node<T> | null = this; node != null; node = node.next) {
+                yield [node, node.value] as [LinkedList.Node<T>, T]
+            }
+        }
+
+        public *values() {
+            for (let node: Node<T> | null = this; node != null; node = node.next) {
+                yield node.value
+            }
+        }
+
+        public *keys() {
+            for (let node: Node<T> | null = this; node != null; node = node.next) {
+                yield node
+            }
+        }
+
         constructor(
             public value: T,
             public prev: Node<T> | null,
