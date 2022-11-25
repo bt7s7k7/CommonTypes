@@ -32,7 +32,7 @@ export function ensureProperty<T extends Record<any, unknown>, K extends keyof T
     return object[key]
 }
 
-export function ensureKey<K, T>(map: Map<K, T>, key: K, factory: () => T) {
+export function ensureKey<K, T>(map: K extends object ? Map<K, T> | WeakMap<K, T> : Map<K, T>, key: K, factory: () => T) {
     const existing = map.get(key)
     if (existing) return existing
     const created = factory()
