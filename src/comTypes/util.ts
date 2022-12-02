@@ -32,7 +32,10 @@ export function ensureProperty<T extends Record<any, unknown>, K extends keyof T
     return object[key]
 }
 
-export function ensureKey<K, T>(map: K extends object ? Map<K, T> | WeakMap<K, T> : Map<K, T>, key: K, factory: () => T) {
+// `[K] extends [object]` is used to avoid type distribution in conditional,
+// without it, for example, `ensureKey<string | null, ...>`  would require
+// `Map<string, ...> | Map<null, ...>` instead of `Map<string | null, ...>`.
+export function ensureKey<K, T>(map: [K] extends [object] ? Map<K, T> | WeakMap<K, T> : Map<K, T>, key: K, factory: () => T) {
     const existing = map.get(key)
     if (existing) return existing
     const created = factory()
