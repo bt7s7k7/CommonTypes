@@ -5,6 +5,7 @@ export class SortedArray<T> {
 
     public get length() { return this.array.length }
     public get(index: number) {
+        if (index < 0) return this.array[this.array.length + index]
         return this.array[index]
     }
 
@@ -13,7 +14,7 @@ export class SortedArray<T> {
     }
 
     public indexOf(value: T) {
-        return binarySearch(this.array, (a) => this.comparator(a, value))
+        return binarySearch(this.array, (a) => this.comparator(value, a))
     }
 
     public contains(value: T) {
@@ -28,6 +29,22 @@ export class SortedArray<T> {
         return true
     }
 
+    public splice(index: number, deleteCount?: number, ...insert: T[]) {
+        if (deleteCount == undefined) {
+            this.array.splice(index)
+        } else {
+            this.array.splice(index, deleteCount)
+        }
+
+        for (const value of insert) {
+            this.add(value)
+        }
+    }
+
+    public clear() {
+        this.array.length = 0
+    }
+
     public [Symbol.iterator]() {
         return this.array[Symbol.iterator]()
     }
@@ -37,6 +54,15 @@ export class SortedArray<T> {
     ) { }
 
     public static adopt<T>(array: T[], comparator: (a: T, target: T) => number) {
+        const result = new SortedArray<T>(comparator)
+        result.array = array
+
+        return result
+    }
+
+    public static from<T>(source: IterableIterator<T>, comparator: (a: T, target: T) => number) {
+        const array = [...source]
+
         const result = new SortedArray<T>(comparator)
         result.array = array
 
