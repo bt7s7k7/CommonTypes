@@ -849,4 +849,11 @@ export function ensureArrayBuffer(input: ArrayBuffer | ArrayBufferView) {
 
     return input
 }
+
+export function repeatString(string: string, count: number) {
+    let ret = ""
+    for (let i = 0; i < count; i++) {
+        ret += string
+    }
+    return ret
 }
