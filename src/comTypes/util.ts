@@ -18,7 +18,7 @@ export function toBase64(source: string): string {
         "btoa" in globalThis ? globalThis.btoa(source)
             // @ts-ignore
             : "Buffer" in globalThis ? Buffer.from(source, "binary").toString("base64")
-                : toBase64Binary(asciiToBinary(source))
+                : toBase64Binary(encodeAscii(source))
     )
 }
 
