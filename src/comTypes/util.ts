@@ -140,7 +140,7 @@ export function autoFilter<T>(source: (T | null | false | undefined | T[])[]) {
 const BASE_64_INDEX = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 
 export function toBase64Binary(source: ArrayBuffer | number[]) {
-    const input = source instanceof Array ? source : new Uint8Array(source)
+    const input = source instanceof Array ? source : new Uint8Array(ensureArrayBuffer(source))
     const inputLength = input.length
     const segmentsCount = Math.ceil(inputLength / 3)
 
@@ -432,7 +432,7 @@ export class Task<T = void> {
     }
 }
 
-export function asciiToBinary(text: string) {
+export function encodeAscii(text: string) {
     const result = new Uint8Array(text.length)
 
     for (let i = 0, len = text.length; i < len; i++) {
@@ -443,9 +443,30 @@ export function asciiToBinary(text: string) {
 
     return result
 }
+export { encodeAscii as asciiToBinary }
+export { decodeAscii as uint8ToAscii }
 
-export function uint8ToAscii(source: Uint8Array | number[]) {
-    return String.fromCharCode(...source)
+export function encodeUTF16(text: string) {
+    const result = new Uint16Array(text.length)
+
+    for (let i = 0, len = text.length; i < len; i++) {
+        let value = text.charCodeAt(i)
+        result[i] = value
+    }
+
+    return result
+}
+
+export function decodeAscii(source: ArrayBuffer | Uint8Array | number[]) {
+    const array = source instanceof Array ? source : new Uint8Array(ensureArrayBuffer(source))
+
+    return String.fromCharCode(...array)
+}
+
+export function decodeUTF16(source: ArrayBuffer | Uint16Array | number[]) {
+    const array = source instanceof Array ? source : new Uint16Array(ensureArrayBuffer(source))
+
+    return String.fromCharCode(...array)
 }
 
 export function* iterableMap<T, R>(iterable: Iterable<T>, thunk: (v: T, i: number) => R) {
@@ -809,4 +830,17 @@ export function makeMapByKeyProperty<T, K extends keyof T>(list: Iterable<T>, pr
     }
 
     return result
+}
+
+/** 
+ * All typed arrays are assignable to `ArrayBuffer`, hovewer
+ * if you use the `new TypedArray(ArrayBuffer)` ctor with a typed array,
+ * the ctor will copy the array number by number instead of just creating a view.
+ * This function ensures a value is actually an `ArrayBuffer`.
+ **/
+export function ensureArrayBuffer(input: ArrayBuffer | ArrayBufferView) {
+    if (ArrayBuffer.isView(input)) return input.buffer
+
+    return input
+}
 }
