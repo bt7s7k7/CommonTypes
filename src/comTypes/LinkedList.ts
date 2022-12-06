@@ -55,6 +55,10 @@ export class LinkedList<T> {
         this.start = null
     }
 
+    public isEmpty() {
+        return this.start == null
+    }
+
     public *[Symbol.iterator]() {
         for (let node = this.start; node != null; node = node.next) {
             yield [node, node.value] as [LinkedList.Node<T>, T]
