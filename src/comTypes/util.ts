@@ -759,6 +759,7 @@ interface GenericParser {
     readAll(delim: (input: string, index: number) => boolean): string[]
     isDone(): boolean
     clone(input?: string): this
+    restart(input: string): this
 }
 const genericParserPrototype: Omit<GenericParser, "index" | "input"> & ThisType<GenericParser> = {
     skipUntil(predicate) {
@@ -798,12 +799,17 @@ const genericParserPrototype: Omit<GenericParser, "index" | "input"> & ThisType<
 
         return clone
     },
+    restart(input) {
+        this.input = input
+        this.index = 0
+        return this
+    },
     isDone() {
         return this.index >= this.input.length
     },
     getCurrent() { return this.input[this.index] }
 }
-export function makeGenericParser<T = {}>(input: string, extend?: T & ThisType<T & GenericParser>) {
+export function makeGenericParser<T = {}>(input: string = "", extend?: T & ThisType<T & GenericParser>) {
     return Object.assign(
         Object.create(genericParserPrototype),
         { input, index: 0 },
