@@ -437,7 +437,6 @@ export function encodeAscii(text: string) {
 
     for (let i = 0, len = text.length; i < len; i++) {
         let value = text.charCodeAt(i)
-        if (value > 255) value = 63
         result[i] = value
     }
 
