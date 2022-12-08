@@ -12,7 +12,11 @@
         "esModuleInterop": true
     },
     "include": [
-        "src",
-        "test"
+        "src"
+    ],
+    "exclude": [
+        "src/commonTypes",
+        "src/path",
+        "src/registry",
     ]
 }
