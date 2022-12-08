@@ -14,11 +14,22 @@ export class SortedArray<T> {
     }
 
     public indexOf(value: T) {
-        return binarySearch(this.array, (a) => this.comparator(value, a))
+        let index = binarySearch(this.array, (a) => this.comparator(value, a))
+        if (index < 0) return -1
+        while (index < this.length) {
+            if (this.array[index] == value) return index
+
+            index++
+            if (this.comparator(value, this.array[index]) != 0) {
+                break
+            }
+        }
+
+        return -1
     }
 
     public contains(value: T) {
-        return this.indexOf(value) >= 0
+        return this.indexOf(value) != -1
     }
 
     public delete(value: T) {
