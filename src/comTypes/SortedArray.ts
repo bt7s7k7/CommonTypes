@@ -56,6 +56,10 @@ export class SortedArray<T> {
         this.array.length = 0
     }
 
+    public map<U>(callbackfn: (value: T, index: number, array: T[]) => U, thisArg?: any): U[] {
+        return this.array.map(callbackfn, thisArg)
+    }
+
     public [Symbol.iterator]() {
         return this.array[Symbol.iterator]()
     }
