@@ -245,8 +245,14 @@ export function* range(length: number) {
     }
 }
 
+/** Typesafe Object.assign */
 export function modify<T extends object>(target: T, props: Partial<T>) {
     return Object.assign(target, props) as T
+}
+
+/** Typesafe Object.assign which can also add new properties */
+export function extend<T extends object, E extends object>(target: T, extend: E & ThisType<T & E>): T & E {
+    return Object.assign(target, extend)
 }
 
 export function unreachable(reason = "Reached unreachable code"): never {
