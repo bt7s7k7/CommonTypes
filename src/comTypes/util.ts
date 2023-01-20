@@ -867,4 +867,21 @@ export function repeatString(string: string, count: number) {
 export function makeLookupObject<T>(props: T) {
     return Object.assign(Object.create(null), props) as T
 }
+
+export function rangeOverflow(value: number, min: number, max: number) {
+    const size = max - min
+    value = value - min
+
+    if (value < 0) {
+        value = size + (value % size)
+    }
+
+    return value % size
+}
+
+export function rangeClamp(value: number, min: number, max: number) {
+    if (value > max) value = max
+    if (value < min) value = min
+
+    return value
 }
