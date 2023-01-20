@@ -862,3 +862,9 @@ export function repeatString(string: string, count: number) {
     }
     return ret
 }
+
+/** Creates an object with null prototype with the provided properties */
+export function makeLookupObject<T>(props: T) {
+    return Object.assign(Object.create(null), props) as T
+}
+}
