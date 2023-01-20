@@ -18,6 +18,8 @@ export class MultiMap<I, T extends Record<string, KeySpecifier<any, boolean, boo
     protected reverseKeys = new Map<I, Map<string, any>>()
     protected uniqueKeys = new Map<string, Map<any, I>>()
 
+    public get size() { return this.reverseKeys.size }
+
     public tryGet<K extends keyof T>(from: K, key: T[K]["type"]): (T[K]["shared"] extends false ? I : ReadonlySet<I>) | null {
         const keyType = this.keyTypes[from]
         if (keyType == null) throw new RangeError(`Invalid key type ${JSON.stringify(keyType)}`)
