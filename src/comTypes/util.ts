@@ -893,3 +893,9 @@ export function isPrimitiveValue(value: any): value is string | number | boolean
 export function lerpNumber(from: number, to: number, t: number) {
     return from * (1 - t) + to * t
 }
+
+export function cloneWithout<T>(object: T, ...omit: (keyof T)[]) {
+    const clone = Object.assign({}, object)
+    for (const key of omit) delete clone[key]
+    return clone
+}
