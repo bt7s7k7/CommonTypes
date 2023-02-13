@@ -890,3 +890,6 @@ export function isPrimitiveValue(value: any): value is string | number | boolean
     return typeof value == "string" || typeof value == "number" || typeof value == "boolean" || (typeof value == "object" && value == null)
 }
 
+export function lerpNumber(from: number, to: number, t: number) {
+    return from * (1 - t) + to * t
+}
