@@ -885,3 +885,8 @@ export function rangeClamp(value: number, min: number, max: number) {
 
     return value
 }
+
+export function isPrimitiveValue(value: any): value is string | number | boolean | null {
+    return typeof value == "string" || typeof value == "number" || typeof value == "boolean" || (typeof value == "object" && value == null)
+}
+
