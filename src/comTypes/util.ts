@@ -765,6 +765,7 @@ interface GenericParser {
     isDone(): boolean
     clone(input?: string): this
     restart(input: string): this
+    consume(token: string): boolean
 }
 const genericParserPrototype: Omit<GenericParser, "index" | "input"> & ThisType<GenericParser> = {
     skipUntil(predicate) {
@@ -811,6 +812,14 @@ const genericParserPrototype: Omit<GenericParser, "index" | "input"> & ThisType<
     },
     isDone() {
         return this.index >= this.input.length
+    },
+    consume(token: string) {
+        if (this.input.startsWith(token, this.index)) {
+            this.index += token.length
+            return true
+        }
+
+        return false
     },
     getCurrent() { return this.input[this.index] }
 }
