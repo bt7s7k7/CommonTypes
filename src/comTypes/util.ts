@@ -511,39 +511,39 @@ const ALPHA_MIN_1 = "a".charCodeAt(0)
 const ALPHA_MAX_1 = "z".charCodeAt(0)
 const ALPHA_MIN_2 = "A".charCodeAt(0)
 const ALPHA_MAX_2 = "Z".charCodeAt(0)
-export function isNumber(char: string) {
+export function isNumber(char: string, index = 0) {
     if (!char) return false
-    const code = char.charCodeAt(0)
+    const code = char.charCodeAt(index)
     return code >= NUMBER_MIN && code <= NUMBER_MAX
 }
 
-export function isAlpha(char: string) {
+export function isAlpha(char: string, index = 0) {
     if (!char) return false
-    const code = char.charCodeAt(0)
+    const code = char.charCodeAt(index)
     return (
         (code >= ALPHA_MIN_1 && code <= ALPHA_MAX_1) ||
         (code >= ALPHA_MIN_2 && code <= ALPHA_MAX_2)
     )
 }
 
-export function isLowerCase(char: string) {
+export function isLowerCase(char: string, index = 0) {
     if (!char) return false
-    const code = char.charCodeAt(0)
+    const code = char.charCodeAt(index)
     return (
         (code >= ALPHA_MIN_1 && code <= ALPHA_MAX_1)
     )
 }
 
-export function isUpperCase(char: string) {
+export function isUpperCase(char: string, index = 0) {
     if (!char) return false
-    const code = char.charCodeAt(0)
+    const code = char.charCodeAt(index)
     return (
         (code >= ALPHA_MIN_2 && code <= ALPHA_MAX_2)
     )
 }
 
-export function isWord(char: string) {
-    return isAlpha(char) || isNumber(char) || char == "_"
+export function isWord(char: string, index = 0) {
+    return isAlpha(char, index) || isNumber(char, index) || char[index] == "_"
 }
 
 export function cloneArray<T>(source: T[]) {
