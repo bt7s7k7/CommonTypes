@@ -6,6 +6,7 @@ export type Readwrite<T> = { -readonly [P in keyof T]: T[P] }
 export type Entry<T extends Record<any, any>> = [keyof T, T[keyof T]]
 export type Values<T extends Record<any, any>> = T[keyof T]
 export type FilterBy<T extends any, K extends keyof any, F extends any> = T extends { [P in K]: F } ? T : never
+export type ExcludeBy<T extends any, K extends keyof any, F extends any> = T extends { [P in K]: F } ? never : T
 export type ToReadonlyCollection<T> =
     T extends ReadonlyMap<infer K, infer U> ? ReadonlyMap<K, U> :
     T extends ReadonlySet<infer U> ? ReadonlySet<U> :
