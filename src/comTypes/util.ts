@@ -760,15 +760,21 @@ interface GenericParser {
     index: number
     getCurrent(): string
     skipUntil(predicate: (input: string, index: number) => boolean): boolean
+    skipUntil(token: string): boolean
     readUntil(predicate: (input: string, index: number) => boolean): string
+    readUntil(token: string): string
     readAll(delim: (input: string, index: number) => boolean): string[]
     isDone(): boolean
     clone(input?: string): this
     restart(input: string): this
     consume(token: string): boolean
+    consume<T extends string>(tokens: T[]): T | null
+    matches(token: string): boolean
+    matches<T extends string>(tokens: T[]): T | null
 }
 const genericParserPrototype: Omit<GenericParser, "index" | "input"> & ThisType<GenericParser> = {
     skipUntil(predicate) {
+        if (typeof predicate == "string") predicate = (v, i) => v.startsWith(v, i)
         while (this.index < this.input.length) {
             if (predicate(this.input, this.index)) {
                 return true
@@ -779,6 +785,7 @@ const genericParserPrototype: Omit<GenericParser, "index" | "input"> & ThisType<
         return false
     },
     readUntil(predicate) {
+        if (typeof predicate == "string") predicate = (v, i) => v.startsWith(v, i)
         let start = this.index
         this.skipUntil(predicate)
         let end = this.index
@@ -813,7 +820,32 @@ const genericParserPrototype: Omit<GenericParser, "index" | "input"> & ThisType<
     isDone() {
         return this.index >= this.input.length
     },
-    consume(token: string) {
+    matches(token: string | string[]): any {
+        if (token instanceof Array) {
+            for (const element of token) {
+                if (this.matches(element)) {
+                    return element
+                }
+            }
+            return null
+        }
+
+        if (this.input.startsWith(token, this.index)) {
+            return true
+        }
+
+        return false
+    },
+    consume(token: string | string[]): any {
+        if (token instanceof Array) {
+            for (const element of token) {
+                if (this.consume(element)) {
+                    return element
+                }
+            }
+            return null
+        }
+
         if (this.input.startsWith(token, this.index)) {
             this.index += token.length
             return true
