@@ -885,7 +885,7 @@ export function makeMapByKeyProperty<T, K extends keyof T>(list: Iterable<T>, pr
 }
 
 /** 
- * All typed arrays are assignable to `ArrayBuffer`, hovewer
+ * All typed arrays are assignable to `ArrayBuffer`, however
  * if you use the `new TypedArray(ArrayBuffer)` ctor with a typed array,
  * the ctor will copy the array number by number instead of just creating a view.
  * This function ensures a value is actually an `ArrayBuffer`.
