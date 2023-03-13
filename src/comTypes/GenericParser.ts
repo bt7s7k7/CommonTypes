@@ -16,8 +16,12 @@ interface GenericParser {
     matches<T extends string>(tokens: T[]): T | null
 }
 const genericParserPrototype: Omit<GenericParser, "index" | "input"> & ThisType<GenericParser> = {
-    skipUntil(predicate) {
-        if (typeof predicate == "string") predicate = (v, i) => v.startsWith(v, i)
+    skipUntil(predicate: string | ((input: string, index: number) => boolean)) {
+        if (typeof predicate == "string") {
+            const search = predicate
+            predicate = (v, i) => v.startsWith(search, i)
+        }
+
         while (this.index < this.input.length) {
             if (predicate(this.input, this.index)) {
                 return true
@@ -27,8 +31,12 @@ const genericParserPrototype: Omit<GenericParser, "index" | "input"> & ThisType<
 
         return false
     },
-    readUntil(predicate) {
-        if (typeof predicate == "string") predicate = (v, i) => v.startsWith(v, i)
+    readUntil(predicate: string | ((input: string, index: number) => boolean)) {
+        if (typeof predicate == "string") {
+            const search = predicate
+            predicate = (v, i) => v.startsWith(search, i)
+        }
+
         let start = this.index
         this.skipUntil(predicate)
         let end = this.index
