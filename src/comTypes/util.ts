@@ -544,6 +544,7 @@ export function isUpperCase(char: string, index = 0) {
 }
 
 export function isWord(char: string, index = 0) {
+    if (!char || !char[index]) return false
     return isAlpha(char, index) || isNumber(char, index) || char[index] == "_"
 }
 
