@@ -223,7 +223,7 @@ export function assertType<T>(value: any): value is T {
     return true
 }
 
-export function weightedRandom<T>(source: Iterable<{ value: T, weight: number }>, sum: null | number = null) {
+export function weightedRandom<T>(source: Iterable<{ value: T, weight: number }>, sum: null | number = null, value = Math.random()) {
     if (sum == null) {
         sum = 0
         for (const entry of source) {
@@ -231,7 +231,7 @@ export function weightedRandom<T>(source: Iterable<{ value: T, weight: number }>
         }
     }
 
-    let choice = Math.random() * sum
+    let choice = value * sum
     for (const entry of source) {
         if (choice < entry.weight) return entry.value
         choice -= entry.weight
