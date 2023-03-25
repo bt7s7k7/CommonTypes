@@ -8,8 +8,10 @@
             "ESNext"
         ],
         "module": "CommonJS",
-        "outDir": "build",
-        "esModuleInterop": true
+        "esModuleInterop": true,
+        "outDir": "dist",
+        "declaration": true,
+        "emitDeclarationOnly": true
     },
     "include": [
         "src"

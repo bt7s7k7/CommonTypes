@@ -1,19 +1,8 @@
 import { ensureKey, makeRandomID } from "./util"
 
-interface KeySpecifier<T, S extends boolean, C extends boolean> {
-    type: T
-    shared: S
-    multiple: C
-    generator: ((value: any) => any) | null
-}
-
-interface EntitySpecifier<T> {
-    entity: T
-}
-
 const DEFAULT_MAP = new Map()
 
-export class MultiMap<I, T extends Record<string, KeySpecifier<any, boolean, boolean>>> {
+export class MultiMap<I, T extends Record<string, MultiMap.InternalTypes.KeySpecifier<any, boolean, boolean>>> {
     protected sharedKeys = new Map<string, Map<any, Set<I>>>()
     protected reverseKeys = new Map<I, Map<string, any>>()
     protected uniqueKeys = new Map<string, Map<any, I>>()
@@ -117,7 +106,7 @@ export class MultiMap<I, T extends Record<string, KeySpecifier<any, boolean, boo
     }
 
     constructor(
-        entity: EntitySpecifier<I>,
+        entity: MultiMap.InternalTypes.EntitySpecifier<I>,
         protected readonly keyTypes: T
     ) {
         for (const [name, key] of Object.entries(keyTypes)) {
@@ -131,36 +120,36 @@ export class MultiMap<I, T extends Record<string, KeySpecifier<any, boolean, boo
 }
 
 export namespace MultiMap {
-    export function key<T>(generator: KeySpecifier<any, any, any>["generator"] = null) {
+    export function key<T>(generator: MultiMap.InternalTypes.KeySpecifier<any, any, any>["generator"] = null) {
         return {
             shared: false,
             multiple: false,
             generator
-        } as KeySpecifier<T, false, false>
+        } as MultiMap.InternalTypes.KeySpecifier<T, false, false>
     }
 
-    export function sharedKey<T>(generator: KeySpecifier<any, any, any>["generator"] = null) {
+    export function sharedKey<T>(generator: MultiMap.InternalTypes.KeySpecifier<any, any, any>["generator"] = null) {
         return {
             shared: true,
             multiple: false,
             generator
-        } as KeySpecifier<T, true, false>
+        } as MultiMap.InternalTypes.KeySpecifier<T, true, false>
     }
 
-    export function multipleKey<T>(generator: KeySpecifier<any, any, any>["generator"] = null) {
+    export function multipleKey<T>(generator: MultiMap.InternalTypes.KeySpecifier<any, any, any>["generator"] = null) {
         return {
             shared: false,
             multiple: true,
             generator
-        } as KeySpecifier<T, false, true>
+        } as MultiMap.InternalTypes.KeySpecifier<T, false, true>
     }
 
-    export function sharedMultipleKey<T>(generator: KeySpecifier<any, any, any>["generator"] = null) {
+    export function sharedMultipleKey<T>(generator: MultiMap.InternalTypes.KeySpecifier<any, any, any>["generator"] = null) {
         return {
             shared: true,
             multiple: true,
             generator
-        } as KeySpecifier<T, true, true>
+        } as MultiMap.InternalTypes.KeySpecifier<T, true, true>
     }
 
     export function autoKey<T>() {
@@ -168,6 +157,19 @@ export namespace MultiMap {
     }
 
     export function entity<T>() {
-        return null! as EntitySpecifier<T>
+        return null! as MultiMap.InternalTypes.EntitySpecifier<T>
+    }
+
+    export namespace InternalTypes {
+        export interface KeySpecifier<T, S extends boolean, C extends boolean> {
+            type: T
+            shared: S
+            multiple: C
+            generator: ((value: any) => any) | null
+        }
+
+        export interface EntitySpecifier<T> {
+            entity: T
+        }
     }
 }

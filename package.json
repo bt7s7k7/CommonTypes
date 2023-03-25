@@ -1,16 +1,26 @@
 {
-    "name": "CommonTypes",
-    "version": "0.0.0",
-    "main": "index.js",
-    "author": "Branislav Trstenský <bt7s7k7@hotmail.sk>",
+    "name": "@bt7s7k7/kompa",
+    "version": "1.0.0",
+    "description": "TypeScript collection of various utility functions",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "author": "bt7s7k7",
     "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/bt7s7k7/CommonTypes.git"
+    },
+    "bugs": {
+        "url": "https://github.com/bt7s7k7/CommonTypes/issues"
+    },
+    "homepage": "https://github.com/bt7s7k7/CommonTypes#readme",
     "scripts": {
-        "build": "tsc --preserveWatchOutput --incremental",
-        "start": "yarn build && node -r source-map-support/register --preserve-symlinks --inspect ./build/app/app.js"
+        "build": "node esbuild.js && tsc"
     },
     "devDependencies": {
         "@types/node": "^14.10.1",
         "source-map-support": "^0.5.19",
-        "typescript": "^4.9.4"
+        "typescript": "^4.9.4",
+        "esbuild": "^0.17.13"
     }
 }
