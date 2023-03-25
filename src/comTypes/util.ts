@@ -834,7 +834,7 @@ export function lerpNumber(from: number, to: number, t: number) {
 }
 
 export function cloneWithout<T>(object: T, ...omit: (keyof T)[]) {
-    const clone = Object.assign({}, object)
+    const clone = Object.assign(Object.create(Object.getPrototypeOf(object)), object)
     for (const key of omit) delete clone[key]
     return clone
 }
