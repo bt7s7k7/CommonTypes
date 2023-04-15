@@ -219,11 +219,20 @@ export function delayedPromise(timeout: number) {
     return new Promise<void>(resolve => setTimeout(() => resolve(), timeout))
 }
 
+/**
+ * Forces TypeScript to view the value as the provided type in the scope guarded by this function.
+ * 
+ * @example
+ * const x: number
+ * if (assertType<string>(x)) {
+ *     console.log(x.length) // x is treated a string herec
+ * }
+ */
 export function assertType<T>(value: any): value is T {
     return true
 }
 
-export function weightedRandom<T>(source: Iterable<{ value: T, weight: number }>, sum: null | number = null, value = Math.random()) {
+export function weightedRandom<T>(source: Iterable<{ value: T, weight: number }>, sum: number | undefined | null = null, value = Math.random()) {
     if (sum == null) {
         sum = 0
         for (const entry of source) {
@@ -240,6 +249,9 @@ export function weightedRandom<T>(source: Iterable<{ value: T, weight: number }>
     throw new Error("Failed assertion: no choice picked from weighted random")
 }
 
+/**
+ * Returns an iterator, returning numbers `<0, length-1>`.
+ */
 export function* range(length: number) {
     for (let i = 0; i < length; i++) {
         yield i
@@ -552,6 +564,9 @@ export function cloneArray<T>(source: T[]) {
     return ([] as T[]).concat(source)
 }
 
+/**
+ * Filters array inplace, without a minimal amount of writes. Can change the order of elements.
+ */
 export function quickFilter<T>(source: T[], predicate: (v: T) => boolean) {
     let last = source.length - 1
 
@@ -568,6 +583,9 @@ export function quickFilter<T>(source: T[], predicate: (v: T) => boolean) {
     return source
 }
 
+/**
+ * Creates an object with setters and getters corresponding to all enumerable properties of the target object.
+ */
 export function createShadowObject<T extends Record<string, any>>(target: T) {
     const ret = {} as T
 
@@ -577,11 +595,14 @@ export function createShadowObject<T extends Record<string, any>>(target: T) {
 }
 
 /** 
- * Returns the index of the found element based on
- * the comparator function. If the element is not found,
- * returns the index the element would have been, just negative.
+ * Returns the index of the found element based on\
+ * the comparator function. If the element is not found,\
+ * returns negative number representing, what the index\
+ * would have been. Use `-index - 1` to get this index.
  * 
- * To get the positive index use `-index - 1`
+ * @example
+ * binarySearch([1,2,3], a => 3 - a) // returns 2
+ * binarySearch([1,2,4], a => 3 - a) // returns -3 (2)
  **/
 export function binarySearch<T>(array: T[], comparator: (a: T) => number) {
     let low = 0
@@ -602,6 +623,9 @@ export function binarySearch<T>(array: T[], comparator: (a: T) => number) {
     return -low - 1
 }
 
+/**
+ * Inserts an element based on a binary search. To sort ascending compare `(a,b) => a - b`, descending `(a,b) => b - a`.
+ */
 export function insertSorted<T>(target: T, array: T[], comparator: (a: T, target: T) => number) {
     const index = binarySearch(array, a => comparator(target, a))
     if (index >= 0) {
@@ -801,7 +825,7 @@ export function repeatString(string: string, count: number) {
     return ret
 }
 
-/** Creates an object with null prototype with the provided properties */
+/** Creates an object with null prototype and the provided props. */
 export function makeLookupObject<T>(props: T) {
     return Object.assign(Object.create(null), props) as T
 }
@@ -832,6 +856,9 @@ export function lerpNumber(from: number, to: number, t: number) {
     return from * (1 - t) + to * t
 }
 
+/**
+ * Creates a shallow clone of the provided object, maintaining it's prototype, and deletes the specified properties.
+ */
 export function cloneWithout<T>(object: T, ...omit: (keyof T)[]) {
     const clone = Object.assign(Object.create(Object.getPrototypeOf(object)), object)
     for (const key of omit) delete clone[key]
