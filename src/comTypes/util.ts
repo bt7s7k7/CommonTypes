@@ -225,7 +225,7 @@ export function delayedPromise(timeout: number) {
  * @example
  * const x: number
  * if (assertType<string>(x)) {
- *     console.log(x.length) // x is treated a string herec
+ *     console.log(x.length) // x is treated a string here
  * }
  */
 export function assertType<T>(value: any): value is T {
