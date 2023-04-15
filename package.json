@@ -1,6 +1,6 @@
 {
     "name": "@bt7s7k7/kompa",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "description": "TypeScript collection of various utility functions",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
@@ -15,7 +15,8 @@
     },
     "homepage": "https://github.com/bt7s7k7/CommonTypes#readme",
     "scripts": {
-        "build": "node esbuild.js && tsc"
+        "build": "node esbuild.js && tsc && rm -rf dist/app",
+        "deploy": ""
     },
     "devDependencies": {
         "@types/node": "^14.10.1",
