@@ -611,9 +611,8 @@ export function insertSorted<T>(target: T, array: T[], comparator: (a: T, target
     }
 }
 
-export function mutate<T extends object>(target: T, update: Partial<T>) {
-    return Object.assign(target, update) as T
-}
+/** @deprecated */
+export const mutate = modify
 
 export function fuzzySearch<T>(input: string, options: T[], getter: (v: T) => string) {
     const filteredOptions: { option: T, cost: number }[] = []
