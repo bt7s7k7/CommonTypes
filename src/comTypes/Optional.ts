@@ -7,9 +7,9 @@ export class Optional<T> {
 
     public get rejected() { return this._rejected }
 
-    public else<R>(factory: () => R): Optional<T | (R extends Optional<infer U> ? U : R)> {
+    public else<R>(factory: (error: Error) => R): Optional<T | (R extends Optional<infer U> ? U : R)> {
         if (this._rejected) {
-            const value = factory()
+            const value = factory(this._rejected)
             if (value instanceof Optional) {
                 if (value._rejected) {
                     this._rejected = value._rejected
