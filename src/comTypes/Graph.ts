@@ -86,6 +86,10 @@ export class Graph<T = void> {
         this._nextID = 0
     }
 
+    public clearEdges() {
+        this._edges.clear()
+    }
+
     constructor(
         copy?: Graph<T>,
         userDataCopy?: (v: T) => T
