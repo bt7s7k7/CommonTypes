@@ -494,6 +494,16 @@ export function* iterableMap<T, R>(iterable: Iterable<T>, thunk: (v: T, i: numbe
     }
 }
 
+export function iterableFind<T>(iterable: Iterable<T>, thunk: (v: T, i: number) => boolean) {
+    let i = 0
+
+    for (const value of iterable) {
+        if (thunk(value, i++)) return value
+    }
+
+    return null
+}
+
 export function unzip<T>(source: ArrayLike<T>, predicate: (v: T, i: number) => boolean) {
     const pairs: [T, T[]][] = []
     for (let i = 0, len = source.length; i < len; i++) {
