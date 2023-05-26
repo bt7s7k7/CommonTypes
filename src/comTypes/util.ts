@@ -874,3 +874,8 @@ export function cloneWithout<T>(object: T, ...omit: (keyof T)[]) {
     for (const key of omit) delete clone[key]
     return clone
 }
+
+export function executeProtectedConstructor<T>(ctor: T, ...args: ConstructorParameters<{ new(): never } & T>): InstanceType<{ new(): never } & T> {
+    // @ts-ignore
+    return new ctor(...args)
+}
