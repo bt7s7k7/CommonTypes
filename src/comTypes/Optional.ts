@@ -84,6 +84,17 @@ export class Optional<T> {
         return this
     }
 
+    public filterType<R>(type: AbstractConstructor<R>, msg = `Value was not of type "${type.name}"`): Optional<R> {
+        if (this._rejected) return this as any
+
+        if (!(this._value instanceof type)) {
+            this._rejected = new Error(msg)
+            this._value = null
+        }
+
+        return this as any
+    }
+
     public rejectValue<R>(value: R, msg = `Value was "${toString(value)}"`): Optional<Exclude<T, R>> {
         if (!this._rejected) {
             if (this._value == value)
