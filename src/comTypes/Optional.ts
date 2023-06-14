@@ -1,4 +1,4 @@
-import { Constructor } from "./types"
+import { AbstractConstructor } from "./types"
 import { asError, toString } from "./util"
 
 export class Optional<T> {
@@ -73,7 +73,7 @@ export class Optional<T> {
         return this as any
     }
 
-    public rejectType(type: Constructor, msg = `Value was of type "${type.name}"`): Optional<T> {
+    public rejectType(type: AbstractConstructor, msg = `Value was of type "${type.name}"`): Optional<T> {
         if (this._rejected) return this
 
         if (this._value instanceof type) {
