@@ -28,6 +28,7 @@ export function fromBase64(source: string): string {
     return "atob" in globalThis ? globalThis.atob(source) : "Buffer" in globalThis ? Buffer.from(source, "base64").toString("binary") : (() => { throw new Error("No function found to parse base64") })()
 }
 
+/** If the property is not contained on the object, it is created using the factory. Property is then returned. */
 export function ensureProperty<T extends Record<any, unknown>, K extends keyof T>(object: T, key: K, factory: () => T[K]): T[K] {
     if (!(key in object)) object[key] = factory()
     return object[key]
@@ -36,6 +37,7 @@ export function ensureProperty<T extends Record<any, unknown>, K extends keyof T
 // `[K] extends [object]` is used to avoid type distribution in conditional,
 // without it, for example, `ensureKey<string | null, ...>`  would require
 // `Map<string, ...> | Map<null, ...>` instead of `Map<string | null, ...>`.
+/** If the key is not present in the map, it is created using the factory. Value is then returned. */
 export function ensureKey<K, T>(map: [K] extends [object] ? Map<K, T> | WeakMap<K, T> : Map<K, T>, key: K, factory: () => T) {
     const existing = map.get(key)
     if (existing) return existing
@@ -44,6 +46,7 @@ export function ensureKey<K, T>(map: [K] extends [object] ? Map<K, T> | WeakMap<
     return created
 }
 
+/** Replaces the property on an object with a setter, which is invoked when changed. */
 export function makePropertyObserver<T extends Record<keyof any, any>, K extends keyof T>(target: T, prop: K, callback: (newValue: T[K], oldValue: T[K]) => void) {
     let value = target[prop]
 
@@ -58,6 +61,7 @@ export function makePropertyObserver<T extends Record<keyof any, any>, K extends
     })
 }
 
+/** A `Map` indexed by the class of its values. */
 export class TypedMap {
 
     public get<T extends Constructor>(key: T): InstanceType<T> | null {
@@ -89,11 +93,13 @@ export class TypedMap {
     protected store = new Map<Constructor, any>()
 }
 
+/** Ensures the value is an instance of an `Error`. */
 export function asError(value: any): Error {
     if (!(value instanceof Error)) value = new Error(toString(value))
     return value
 }
 
+/** Returns a string representation of an object. Uses `toString` if not `null`. */
 export function toString(value: any): string {
     if (typeof value == "object" && value == null) {
         return "null"
@@ -104,6 +110,7 @@ export function toString(value: any): string {
     }
 }
 
+/** Creates a string representation of a Node.js socket address. */
 export function stringifyAddress(address: string | { address?: string, port?: string | number } | null) {
     if (address && typeof address == "object") {
         return `[${address.address}]:${address.port}`
@@ -112,6 +119,7 @@ export function stringifyAddress(address: string | { address?: string, port?: st
     }
 }
 
+/** Returns a function which executes the thunk with its argument and return the argument unchanged. */
 export function sideEffect<T>(thunk: (v: T) => void): (v: T) => T {
     return v => {
         thunk(v)
@@ -119,10 +127,12 @@ export function sideEffect<T>(thunk: (v: T) => void): (v: T) => T {
     }
 }
 
+/** Applies the provided function to the value. */
 export function transform<T, R>(value: T, thunk: (v: T) => R) {
     return thunk(value)
 }
 
+/** Returns `null` if the value is `NaN`. */
 export function voidNaN(value: number) {
     if (isNaN(value)) return null
     else return Number(value)
@@ -208,6 +218,7 @@ export function makeDataURL(type: string, data: ArrayBuffer | string) {
     return `data:${type};base64,${data}`
 }
 
+/** Executes the provided source using the function constructor. Optionally provide an environment object or a source url for debugging. */
 export function runString({ source, env = {}, url }: { source: string, env?: Record<string, any>, url?: string }) {
     if (url) source += "\n//# sourceURL=" + url
     const envEntries = Object.entries(env)
@@ -272,6 +283,7 @@ export function unreachable(reason = "Reached unreachable code"): never {
     throw new Error("Assertion failed: " + reason)
 }
 
+/** Binds all function in an object to always have `this` as the object. Use the `transform` function if you want to replace some functions. */
 export function bindObjectFunction<T>(object: T, transform?: (v: Function, key: string) => Function): T {
     for (const key in object) {
         if (key[0] == key[0].toUpperCase()) continue
@@ -461,8 +473,11 @@ export function encodeAscii(text: string) {
 
     return result
 }
-export { encodeAscii as asciiToBinary }
-export { decodeAscii as uint8ToAscii }
+
+/** @deprecated Use `encodeAscii` */
+export const asciiToBinary = encodeAscii
+/** @deprecated Use `decodeAscii` */
+export const uint8ToAscii = decodeAscii
 
 export function encodeUTF16(text: string) {
     const result = new Uint16Array(text.length)
@@ -487,6 +502,7 @@ export function decodeUTF16(source: ArrayBuffer | Uint16Array | number[]) {
     return String.fromCharCode(...array)
 }
 
+/** Returns a iterator, yielding values from the provided iterable, transformed by the `thunk`. */
 export function* iterableMap<T, R>(iterable: Iterable<T>, thunk: (v: T, i: number) => R) {
     let i = 0
     for (const value of iterable) {
@@ -494,18 +510,20 @@ export function* iterableMap<T, R>(iterable: Iterable<T>, thunk: (v: T, i: numbe
     }
 }
 
-export function iterableFind<T>(iterable: Iterable<T>, thunk: (v: T, i: number) => boolean) {
+/** Iterates the iterator until predicate succeeds, returns the index. */
+export function iterableFind<T>(iterable: Iterable<T>, predicate: (v: T, i: number) => boolean) {
     let i = 0
 
     for (const value of iterable) {
-        if (thunk(value, i++)) return value
+        if (predicate(value, i++)) return value
     }
 
     return null
 }
 
+/** Splits an array into smaller chunks by sentinel elements (determined by `predicate`). First element must be a sentinel, otherwise throws. */
 export function unzip<T>(source: ArrayLike<T>, predicate: (v: T, i: number) => boolean) {
-    const pairs: [T, T[]][] = []
+    const pairs: [sentinel: T, elements: T[]][] = []
     for (let i = 0, len = source.length; i < len; i++) {
         const v = source[i]
         const isHeader = predicate(v, i)
@@ -523,6 +541,7 @@ export function unzip<T>(source: ArrayLike<T>, predicate: (v: T, i: number) => b
     return pairs
 }
 
+/** Returns `target` if it is not equal to `value` else `null`. */
 export function voidValue<T>(target: T, value: T) {
     if (target == value) return null
     return target
@@ -534,12 +553,15 @@ const ALPHA_MIN_1 = "a".charCodeAt(0)
 const ALPHA_MAX_1 = "z".charCodeAt(0)
 const ALPHA_MIN_2 = "A".charCodeAt(0)
 const ALPHA_MAX_2 = "Z".charCodeAt(0)
+/** Tests if the provided character is a number (i.e. character from `0` to `9`). */
 export function isNumber(char: string, index = 0) {
     if (!char) return false
     const code = char.charCodeAt(index)
     return code >= NUMBER_MIN && code <= NUMBER_MAX
 }
 
+/** Tests if the provided character is a letter from `a` to `z`, may be uppercase
+ * or lowercase. To test a specific case use `isLowerCase` or `isUpperCase`. */
 export function isAlpha(char: string, index = 0) {
     if (!char) return false
     const code = char.charCodeAt(index)
@@ -549,6 +571,8 @@ export function isAlpha(char: string, index = 0) {
     )
 }
 
+/** Tests if the provided character is a letter from `a` to `z`,
+ * To only test if a character is a letter use `isAlpha`. */
 export function isLowerCase(char: string, index = 0) {
     if (!char) return false
     const code = char.charCodeAt(index)
@@ -557,6 +581,8 @@ export function isLowerCase(char: string, index = 0) {
     )
 }
 
+/** Tests if the provided character is a letter from `A` to `Z`,
+ * To only test if a character is a letter use `isAlpha`. */
 export function isUpperCase(char: string, index = 0) {
     if (!char) return false
     const code = char.charCodeAt(index)
@@ -565,6 +591,7 @@ export function isUpperCase(char: string, index = 0) {
     )
 }
 
+/** Tests if the provided character matches the RegExp token `\w`, which means alphanumeric characters and `_`. */
 export function isWord(char: string, index = 0) {
     if (!char || !char[index]) return false
     return isAlpha(char, index) || isNumber(char, index) || char[index] == "_"
@@ -575,7 +602,7 @@ export function cloneArray<T>(source: T[]) {
 }
 
 /**
- * Filters array inplace, without a minimal amount of writes. Can change the order of elements.
+ * Filters array inplace, with a minimal amount of writes. Can change the order of elements.
  */
 export function quickFilter<T>(source: T[], predicate: (v: T) => boolean) {
     let last = source.length - 1
@@ -645,9 +672,11 @@ export function insertSorted<T>(target: T, array: T[], comparator: (a: T, target
     }
 }
 
-/** @deprecated */
+/** @deprecated Use `modify`. */
 export const mutate = modify
 
+/** Returns the input options sorted by similarity to the query. Use the
+ * `getter` function to specify the string representation of an option. */
 export function fuzzySearch<T>(input: string, options: T[], getter: (v: T) => string) {
     const filteredOptions: { option: T, cost: number }[] = []
 
@@ -693,6 +722,9 @@ export function camelToTitleCase(camel: string) {
 }
 
 type CaseType = "camel" | "snake" | "kebab" | "pascal" | "title"
+/** Converts between programming cases. The input is first split into
+ * tokens the joined together based on the `outputType`, to get a raw list
+ * of tokens set `array` as the output type. */
 export function convertCase<K extends CaseType | "array">(input: string, inputType: CaseType, outputType: K): K extends "array" ? string[] : string {
     const parser = new GenericParser(input)
     const tokens = parser.readAll(
@@ -734,12 +766,18 @@ export function convertCase<K extends CaseType | "array">(input: string, inputTy
     unreachable()
 }
 
+/** 
+ * Return a new iterator, which returns values of provided iterators sequentially.
+ * @example 
+ * const concatenated = new Set(jointIterable(setA, setB))
+ * */
 export function* joinIterable<T>(...iterators: Iterable<T>[]) {
     for (const iterator of iterators) {
         yield* iterator
     }
 }
 
+/** @deprecated This function is only provided for backwards compatibility. */
 export function transformTree<T>(source: T, replacer: (owner: any, prop: keyof any, value: any) => any) {
     function visit(owner: any, prop: keyof any, value: any) {
         const result = replacer(owner, prop, value)
@@ -768,6 +806,7 @@ export function transformTree<T>(source: T, replacer: (owner: any, prop: keyof a
     return visit(null, "", source) as T
 }
 
+/** Escapes a string to be used in raw HTML by replacing the following characters with HTML entities: `&`, `<`, `>`, `"`, `'`.  */
 export function escapeHTML(source: string) {
     return source
         .replace(/&/g, "&amp;")
@@ -777,6 +816,9 @@ export function escapeHTML(source: string) {
         .replace(/'/g, "&#039;")
 }
 
+/** Iterates the provided iterator until reaching the n-th value,
+ * which is returned. Default index is 0. When the iterator finished
+ * before the specified index is found, an `RangeError` is thrown. */
 export function iteratorNth<T>(iterator: Iterator<T> | Iterable<T>, index = 0) {
     if (!("next" in iterator)) {
         iterator = iterator[Symbol.iterator]()
@@ -790,11 +832,14 @@ export function iteratorNth<T>(iterator: Iterator<T> | Iterable<T>, index = 0) {
     }
 }
 
-/** @deprecated */
+/** @deprecated Use the `GenericParser` constructor */
 export function makeGenericParser<T = {}>(input: string = "", extend?: T & ThisType<T & GenericParser>) {
     return new GenericParser(input, extend)
 }
 
+/** Creates an object from the provided iterable,
+ * with the property names being based on the specified property.
+ * The returned object has a null prototype. */
 export function makeObjectByKeyProperty<T, K extends keyof any = string>(list: Iterable<T>, property: keyof T) {
     const result: Record<K, T> = Object.create(null)
 
@@ -805,6 +850,7 @@ export function makeObjectByKeyProperty<T, K extends keyof any = string>(list: I
     return result
 }
 
+/** Creates a map from the provided iterable, with the keys being based on the specified property. */
 export function makeMapByKeyProperty<T, K extends keyof T>(list: Iterable<T>, property: K) {
     const result = new Map<T[K], T>()
 
@@ -827,6 +873,7 @@ export function ensureArrayBuffer(input: ArrayBuffer | ArrayBufferView) {
     return input
 }
 
+/** @deprecated Use `String.prototype.repeat` */
 export function repeatString(string: string, count: number) {
     let ret = ""
     for (let i = 0; i < count; i++) {
@@ -840,6 +887,11 @@ export function makeLookupObject<T>(props: T) {
     return Object.assign(Object.create(null), props) as T
 }
 
+/**
+ * Constraints a value to a range, wrapping around when boundaries are exceeded.
+ * Similar to the modulo operator but also works with negative overflow.
+ * Min is inclusive but max is exclusive.
+ * */
 export function rangeOverflow(value: number, min: number, max: number) {
     const size = max - min
     value = value - min
@@ -851,6 +903,7 @@ export function rangeOverflow(value: number, min: number, max: number) {
     return value % size
 }
 
+/** Clamps a value in a range, min and max are inclusive. */
 export function rangeClamp(value: number, min: number, max: number) {
     if (value > max) value = max
     if (value < min) value = min
@@ -862,6 +915,7 @@ export function isPrimitiveValue(value: any): value is string | number | boolean
     return typeof value == "string" || typeof value == "number" || typeof value == "boolean" || (typeof value == "object" && value == null)
 }
 
+/** Linearly interpolates a number.  */
 export function lerpNumber(from: number, to: number, t: number) {
     return from * (1 - t) + to * t
 }
@@ -875,6 +929,9 @@ export function cloneWithout<T>(object: T, ...omit: (keyof T)[]) {
     return clone
 }
 
+/**
+ * Runs a constructor in the provided class even if the constructor is marked as protected or private.
+ */
 export function executeProtectedConstructor<T>(ctor: T, ...args: ConstructorParameters<{ new(): never } & T>): InstanceType<{ new(): never } & T> {
     // @ts-ignore
     return new ctor(...args)
