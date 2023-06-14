@@ -895,3 +895,23 @@ export function visitTree<T>(root: T, visitor: (value: T) => T[]) {
 
     visit(root)
 }
+
+/** Finds the index of a sequence of elements in an array. Returns `-1` if none found. */
+export function findSequence<T>(array: ArrayLike<T>, sequence: ArrayLike<T>, startPos = 0) {
+    let start = -1
+    let progress = 0
+    for (let i = startPos; i < array.length; i++) {
+        if (array[i] == sequence[progress]) {
+            if (start == -1) start = i
+            progress++
+            if (progress == sequence.length) {
+                return start
+            }
+        } else if (start != -1) {
+            start = -1
+            progress = 0
+        }
+    }
+
+    return -1
+}
