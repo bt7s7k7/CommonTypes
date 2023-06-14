@@ -13,3 +13,4 @@ export type ToReadonlyCollection<T> =
     T extends ReadonlyArray<infer U> ? ReadonlyArray<U> :
     never
 export type ReplaceProp<T extends any, K extends keyof any, V extends any> = Omit<T, K> & { [P in K]: V }
+export type ShiftTuple<T> = T extends [any, ...infer U] ? U : never
