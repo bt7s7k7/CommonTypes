@@ -879,3 +879,19 @@ export function executeProtectedConstructor<T>(ctor: T, ...args: ConstructorPara
     // @ts-ignore
     return new ctor(...args)
 }
+
+/** 
+ * Visits a tree in pre-order, the visitor callback is expected to return an array of children.
+ * @example
+ * visitTree(rootNode, node => (nodes.push(node), node.children))
+ * */
+export function visitTree<T>(root: T, visitor: (value: T) => T[]) {
+    const visit = (node: T) => {
+        const children = visitor(node)
+        for (const child of children) {
+            visit(child)
+        }
+    }
+
+    visit(root)
+}
