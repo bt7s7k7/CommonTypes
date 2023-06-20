@@ -1,6 +1,6 @@
 {
-    "name": "@bt7s7k7/kompa",
-    "version": "1.1.0",
+    "name": "kompa",
+    "version": "1.2.0",
     "description": "TypeScript collection of various utility functions",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
