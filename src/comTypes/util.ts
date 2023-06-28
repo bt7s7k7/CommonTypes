@@ -942,12 +942,13 @@ export function executeProtectedConstructor<T>(ctor: T, ...args: ConstructorPara
  * @example
  * visitTree(rootNode, node => (nodes.push(node), node.children))
  * */
-export function visitTree<T>(root: T, visitor: (value: T) => T[]) {
+export function visitTree<T>(root: T, visitor: (value: T) => T[], returnCallback?: (value: T) => void) {
     const visit = (node: T) => {
         const children = visitor(node)
         for (const child of children) {
             visit(child)
         }
+        returnCallback?.(node)
     }
 
     visit(root)
