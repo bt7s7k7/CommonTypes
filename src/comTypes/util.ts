@@ -983,3 +983,43 @@ export function findSequence<T>(array: ArrayLike<T>, sequence: ArrayLike<T>, sta
 
     return -1
 }
+
+/** Pre-made functions for `Array.reduce` */
+export namespace Reducers {
+    /** Calculates a sum of all elements, use the getter argument to return a numeric value from the element type (not needed number arrays) */
+    export function sum<T = number>(getter?: (v: T) => number): (a: number, b: T) => number {
+        if (getter == null) return (a, b) => a + (b as any as number)
+        return (a, b) => a + getter(b)
+    }
+
+    export interface QueryResult<T> { element: T, value: number, index: number }
+
+    /** Returns the smallest element of the array, use the getter argument to return a numeric value from the element type (not needed number arrays) */
+    export function smallest<T = number>(getter?: (v: T) => number): (a: QueryResult<T> | null, b: T, index: number) => QueryResult<T> {
+        return (a, b, index) => {
+            const value = getter == null ? (b as any as number) : getter(b)
+            if (a == null) return { value, element: b, index }
+            const min = a.value
+            if (value < min) return { value, element: b, index }
+            else return a ?? unreachable()
+        }
+    }
+
+    /** Returns the largest element of the array, use the getter argument to return a numeric value from the element type (not needed number arrays) */
+    export function largest<T = number>(getter?: (v: T) => number): (a: QueryResult<T> | null, b: T, index: number) => QueryResult<T> {
+        return (a, b, index) => {
+            const value = getter == null ? (b as any as number) : getter(b)
+            if (a == null) return { value, element: b, index }
+            const max = a.value
+            if (value > max) return { value, element: b, index }
+            else return a ?? unreachable()
+        }
+    }
+}
+
+/** Iterates an array in the reverse order */
+export function* reverseIterate<T>(array: ArrayLike<T>) {
+    for (let i = array.length - 1; i >= 0; i--) {
+        yield array[i]
+    }
+}
