@@ -1023,3 +1023,11 @@ export function* reverseIterate<T>(array: ArrayLike<T>) {
         yield array[i]
     }
 }
+
+/** Removes the specified value from an array */
+export function arrayRemove<T>(array: T[], value: T) {
+    const index = array.indexOf(value)
+    if (index == -1) return false
+    array.splice(index, 1)
+    return true
+}
