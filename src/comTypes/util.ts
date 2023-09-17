@@ -263,9 +263,12 @@ export function weightedRandom<T>(source: Iterable<{ value: T, weight: number }>
 /**
  * Returns an iterator, returning numbers `<0, length-1>`.
  */
-export function* range(length: number) {
+export function range(length: number): Generator<number, void, unknown>
+export function range<T>(length: number, map?: (i: number) => T): Generator<T, void, unknown>
+export function* range(length: number, map?: (i: number) => any) {
     for (let i = 0; i < length; i++) {
-        yield i
+        if (map) yield map(i)
+        else yield i
     }
 }
 
