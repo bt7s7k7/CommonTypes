@@ -933,6 +933,13 @@ export function cloneWithout<T>(object: T, ...omit: (keyof T)[]) {
 }
 
 /**
+ * Creates a shallow clone of the provided object, maintaining it's prototype.
+ */
+export function shallowClone<T>(object: T) {
+    return cloneWithout(object) as T
+}
+
+/**
  * Runs a constructor in the provided class even if the constructor is marked as protected or private.
  */
 export function executeProtectedConstructor<T>(ctor: T, ...args: ConstructorParameters<{ new(): never } & T>): InstanceType<{ new(): never } & T> {
