@@ -1,6 +1,14 @@
 import { AbstractConstructor } from "./types"
 import { asError, toString } from "./util"
 
+export class PredicateFailedError extends Error {
+    name = "PredicateFailedError"
+}
+
+export class ErrorResultUnwrapError extends Error {
+    name = "ErrorResultUnwrapError"
+}
+
 export class Optional<T> {
     protected _rejected: Error | null = null
     protected _value: any
@@ -24,9 +32,9 @@ export class Optional<T> {
     }
 
     public effect<A extends any[]>(thunk: (value: T, ...args: A) => void, ...args: A): Optional<T> {
-        if (this._rejected) return this
+        if (this._rejected) return this as Optional<T>
         thunk(this._value, ...args)
-        return this
+        return this as Optional<T>
     }
 
     public unwrap(): T {
@@ -62,7 +70,7 @@ export class Optional<T> {
 
         const match = predicate(this._value)
         if (!match) {
-            this._rejected = new Error(msg)
+            this._rejected = new PredicateFailedError(msg)
             this._value = null
         }
 
@@ -77,7 +85,7 @@ export class Optional<T> {
         if (this._rejected) return this
 
         if (this._value instanceof type) {
-            this._rejected = new Error(msg)
+            this._rejected = new PredicateFailedError(msg)
             this._value = null
         }
 
@@ -88,7 +96,7 @@ export class Optional<T> {
         if (this._rejected) return this as any
 
         if (!(this._value instanceof type)) {
-            this._rejected = new Error(msg)
+            this._rejected = new PredicateFailedError(msg)
             this._value = null
         }
 
@@ -99,7 +107,7 @@ export class Optional<T> {
         if (!this._rejected) {
             if (this._value == value)
                 if (this._value == value) {
-                    this._rejected = new Error(msg)
+                    this._rejected = new PredicateFailedError(msg)
                     this._value = null
                 }
         }
@@ -127,5 +135,40 @@ export class Optional<T> {
         } catch (err) {
             return Optional.rejected<never>(asError(err))
         }
+    }
+}
+
+export class Result<T, E extends { kind: string }> {
+    protected _error: E | null = null
+    protected _value: T | null = null
+
+    public get error() { return this._error }
+
+    protected _getError() {
+        return new ErrorResultUnwrapError(`Tried to unwrap result with error of "${this._error!.kind}"`)
+    }
+
+    public unwrap() {
+        if (this._error != null) throw this._getError()
+        return this._value! as T
+    }
+
+    public toOptional(): Optional<T> {
+        if (this._error) return Optional.rejected(this._getError())
+        return Optional.value(this._value!) as Optional<T>
+    }
+
+    public static error<K extends string>(kind: K): Result<never, { kind: K }>
+    public static error<K extends string, P extends object>(kind: K, options: P): Result<never, { kind: K } & P>
+    public static error(kind: string, options?: any) {
+        const result = new Result<never, never>()
+        result._error = { ...options, kind }
+        return result as any
+    }
+
+    public static value<T>(value: T) {
+        const result = new Result<T, never>()
+        result._value = value
+        return result
     }
 }
