@@ -1031,3 +1031,8 @@ export function arrayRemove<T>(array: T[], value: T) {
     array.splice(index, 1)
     return true
 }
+
+/** Returns a function which executes all provided functions with the same arguments, returning their return values in an array */
+export function multicast<A extends any[], T extends ((...args: A) => any)[]>(...targets: T) {
+    return (...args: A) => targets.map(v => v(...args)) as { [P in keyof T]: ReturnType<T[P]> }
+}
