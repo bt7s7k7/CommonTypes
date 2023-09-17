@@ -952,16 +952,16 @@ export function executeProtectedConstructor<T>(ctor: T, ...args: ConstructorPara
  * @example
  * visitTree(rootNode, node => (nodes.push(node), node.children))
  * */
-export function visitTree<T>(root: T, visitor: (value: T) => T[], returnCallback?: (value: T) => void) {
-    const visit = (node: T) => {
-        const children = visitor(node)
+export function visitTree<T>(root: T, visitor: (value: T, depth: number) => Iterable<T>, returnCallback?: (value: T, depth: number) => void) {
+    const visit = (node: T, depth: number) => {
+        const children = visitor(node, depth)
         for (const child of children) {
-            visit(child)
+            visit(child, depth + 1)
         }
-        returnCallback?.(node)
+        returnCallback?.(node, depth)
     }
 
-    visit(root)
+    visit(root, 0)
 }
 
 /** Finds the index of a sequence of elements in an array. Returns `-1` if none found. */
