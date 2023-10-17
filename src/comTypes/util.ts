@@ -1,5 +1,5 @@
 import { GenericParser } from "./GenericParser"
-import { Constructor } from "./types"
+import { AbstractConstructor, Constructor } from "./types"
 
 export function makeRandomID() {
     const bytes = new Array<number>(16)
@@ -1035,4 +1035,8 @@ export function arrayRemove<T>(array: T[], value: T) {
 /** Returns a function which executes all provided functions with the same arguments, returning their return values in an array */
 export function multicast<A extends any[], T extends ((...args: A) => any)[]>(...targets: T) {
     return (...args: A) => targets.map(v => v(...args)) as { [P in keyof T]: ReturnType<T[P]> }
+}
+
+export function instanceofPredicate<T>(type: AbstractConstructor<T>) {
+    return (value: unknown): value is T => value instanceof type
 }
