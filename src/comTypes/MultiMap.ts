@@ -2,6 +2,7 @@ import { ensureKey, makeRandomID } from "./util"
 
 const DEFAULT_MAP = new Map()
 
+/** Stores entities indexed by multiple separate keys. */
 export class MultiMap<I, T extends Record<string, MultiMap.InternalTypes.KeySpecifier<any, boolean, boolean>>> {
     protected sharedKeys = new Map<string, Map<any, Set<I>>>()
     protected reverseKeys = new Map<I, Map<string, any>>()
@@ -120,6 +121,7 @@ export class MultiMap<I, T extends Record<string, MultiMap.InternalTypes.KeySpec
 }
 
 export namespace MultiMap {
+    /** Key that of one value, that is unique among entities. If the generator argument is not specified, the key is derived by indexing the entity with the key name. */
     export function key<T>(generator: MultiMap.InternalTypes.KeySpecifier<any, any, any>["generator"] = null) {
         return {
             shared: false,
@@ -128,6 +130,7 @@ export namespace MultiMap {
         } as MultiMap.InternalTypes.KeySpecifier<T, false, false>
     }
 
+    /** Key that of one value, that can belong to multiple entities. If the generator argument is not specified, the key is derived by indexing the entity with the key name. */
     export function sharedKey<T>(generator: MultiMap.InternalTypes.KeySpecifier<any, any, any>["generator"] = null) {
         return {
             shared: true,
@@ -136,6 +139,7 @@ export namespace MultiMap {
         } as MultiMap.InternalTypes.KeySpecifier<T, true, false>
     }
 
+    /** Key that consists of multiple values and is unique among entities. If the generator argument is not specified, the key is derived by indexing the entity with the key name. */
     export function multipleKey<T>(generator: MultiMap.InternalTypes.KeySpecifier<any, any, any>["generator"] = null) {
         return {
             shared: false,
@@ -144,6 +148,7 @@ export namespace MultiMap {
         } as MultiMap.InternalTypes.KeySpecifier<T, false, true>
     }
 
+    /** Key that consists of multiple values and can belong to multiple entities. If the generator argument is not specified, the key is derived by indexing the entity with the key name. */
     export function sharedMultipleKey<T>(generator: MultiMap.InternalTypes.KeySpecifier<any, any, any>["generator"] = null) {
         return {
             shared: true,
@@ -152,10 +157,12 @@ export namespace MultiMap {
         } as MultiMap.InternalTypes.KeySpecifier<T, true, true>
     }
 
+    /** Unique key that is derived using the `makeRandomID()` function */
     export function autoKey<T>() {
         return key<T>(() => makeRandomID())
     }
 
+    /** Specifies the entity type. A separate function is needed because of TypeScript limitations. */
     export function entity<T>() {
         return null! as MultiMap.InternalTypes.EntitySpecifier<T>
     }
