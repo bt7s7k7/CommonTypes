@@ -68,7 +68,7 @@ export class Random {
 
     /** Random float in range `0 ≥ x > 1` */
     public next() {
-        var t = 2091639 * this.s0 + this.c * DIV_2_POW_32
+        let t = 2091639 * this.s0 + this.c * DIV_2_POW_32
         this.s0 = this.s1
         this.s1 = this.s2
         this.c = t | 0

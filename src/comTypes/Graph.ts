@@ -9,14 +9,14 @@ function makeEdgeID(from: Graph.Node<any>, to: Graph.Node<any>) {
 }
 
 export class Graph<T = void> {
-    protected _nodes = new Set<Graph.Node<T>>();
-    protected _nextID = 0;
+    protected _nodes = new Set<Graph.Node<T>>()
+    protected _nextID = 0
     protected _edges = new MultiMap(MultiMap.entity<Graph.Edge<T>>(), {
         "from": MultiMap.sharedKey<Graph.Node<T>>(),
         "to": MultiMap.sharedKey<Graph.Node<T>>(),
         "connects": MultiMap.sharedMultipleKey((v: Graph.Edge<T>) => [v.from, v.to]),
         "id": MultiMap.key<string>()
-    });
+    })
 
     public addNode(userData: T) {
         const node = new Graph.Node<T>(this, userData)

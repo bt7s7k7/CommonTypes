@@ -6,12 +6,12 @@ export type FilterPublic<T> = Pick<T, keyof T>
 export type Readwrite<T> = { -readonly [P in keyof T]: T[P] }
 export type Entry<T extends Record<any, any>> = [keyof T, T[keyof T]]
 export type Values<T extends Record<any, any>> = T[keyof T]
-export type FilterBy<T extends any, K extends keyof any, F extends any> = T extends { [P in K]: F } ? T : never
-export type ExcludeBy<T extends any, K extends keyof any, F extends any> = T extends { [P in K]: F } ? never : T
+export type FilterBy<T, K extends keyof any, F> = T extends { [P in K]: F } ? T : never
+export type ExcludeBy<T, K extends keyof any, F> = T extends { [P in K]: F } ? never : T
 export type ToReadonlyCollection<T> =
     T extends ReadonlyMap<infer K, infer U> ? ReadonlyMap<K, U> :
     T extends ReadonlySet<infer U> ? ReadonlySet<U> :
     T extends ReadonlyArray<infer U> ? ReadonlyArray<U> :
     never
-export type ReplaceProp<T extends any, K extends keyof any, V extends any> = Omit<T, K> & { [P in K]: V }
+export type ReplaceProp<T, K extends keyof any, V> = Omit<T, K> & { [P in K]: V }
 export type ShiftTuple<T> = T extends [any, ...infer U] ? U : []

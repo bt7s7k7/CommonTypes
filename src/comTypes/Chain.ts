@@ -21,7 +21,7 @@ export class Chain<T, R> {
 
     public evaluate(input: T) {
         for (const handler of this._handlers) {
-            var result = handler(input, Chain.NEXT)
+            let result = handler(input, Chain.NEXT)
             if (result == Chain.NEXT) continue
             return result
         }
