@@ -118,6 +118,18 @@ export class MultiMap<I, T extends Record<string, MultiMap.InternalTypes.KeySpec
             }
         }
     }
+
+    /**
+     * Used to create a reusable database type.
+     * 
+     * @example
+     * class ArticleDatabase extends MultiMap.type(MultiMap.entity<Article>(), { ... }) { }
+     * */
+    public static type<I, T extends Record<string, MultiMap.InternalTypes.KeySpecifier<any, boolean, boolean>>>(entity: MultiMap.InternalTypes.EntitySpecifier<I>, keyTypes: T) {
+        return function () {
+            return new MultiMap(entity, keyTypes)
+        } as unknown as new () => MultiMap<I, T>
+    }
 }
 
 export namespace MultiMap {
