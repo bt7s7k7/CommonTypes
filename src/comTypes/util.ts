@@ -1078,3 +1078,18 @@ export namespace Predicate {
         },
     })
 }
+
+export function searchUntil<T>(generator: () => T, predicate: (value: T) => boolean, { maxAttempts = 1000 as null | number } = {}) {
+    let value: T
+    let attempt = 0
+    do {
+        value = generator()
+        attempt++
+
+        if (maxAttempts != null && attempt > maxAttempts) {
+            throw new RangeError("Search reached maximum attempts")
+        }
+    } while (!predicate(value))
+
+    return value
+}
