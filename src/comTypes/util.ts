@@ -1037,6 +1037,44 @@ export function multicast<A extends any[], T extends ((...args: A) => any)[]>(..
     return (...args: A) => targets.map(v => v(...args)) as { [P in keyof T]: ReturnType<T[P]> }
 }
 
-export function instanceofPredicate<T>(type: AbstractConstructor<T>) {
-    return (value: unknown): value is T => value instanceof type
+export namespace Predicate {
+    export function instanceOf<T>(type: AbstractConstructor<T>) {
+        return (value: unknown): value is T => value instanceof type
+    }
+
+    export function containedIn<T>(collection: { has(value: T): boolean } | { includes(value: T): boolean } | null | undefined) {
+        if (collection == null) return (value: T) => false
+
+        if ("has" in collection) {
+            return (value: T) => collection.has(value)
+        } else {
+            return (value: T) => collection.includes(value)
+        }
+    }
+
+    export function invert<T extends (...args: any[]) => boolean>(predicate: T) {
+        return (...args: Parameters<T>) => !predicate(...args)
+    }
+
+    export function and<T>(...predicates: ((value: T) => boolean)[]) {
+        return (value: T) => {
+            for (const predicate of predicates) {
+                if (!predicate(value)) return false
+            }
+
+            return true
+        }
+    }
+
+    type PredicateFactory = (...args: any[]) => (...args: any) => boolean
+    type PredicateMap = { [P in keyof typeof Predicate]: typeof Predicate[P] extends PredicateFactory ? typeof Predicate[P] : undefined }
+    export const not = new Proxy<PredicateMap>({} as any, {
+        get(target, prop, receiver) {
+            const predicateFactory = Predicate[prop as keyof typeof Predicate] as any as PredicateFactory
+            return (...args: any[]) => {
+                const predicate = predicateFactory(...args)
+                return (...args: any[]) => !predicate(...args)
+            }
+        },
+    })
 }
