@@ -50,7 +50,12 @@ export class Optional<T> {
         return this._value
     }
 
-    public then<A extends any[], R>(thunk: (value: T, ...args: A) => R, ...args: A): Optional<R extends Optional<infer U> ? U : R> {
+    public unwrapOrError(): T | Error {
+        if (this._rejected) return this._rejected
+        return this._value!
+    }
+
+    public do<A extends any[], R>(thunk: (value: T, ...args: A) => R, ...args: A): Optional<R extends Optional<infer U> ? U : R> {
         if (!this._rejected) {
             const value = thunk(this._value, ...args)
             if (value instanceof Optional) {
