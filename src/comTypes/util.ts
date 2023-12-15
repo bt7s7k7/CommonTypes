@@ -1093,3 +1093,13 @@ export function searchUntil<T>(generator: () => T, predicate: (value: T) => bool
 
     return value
 }
+
+export function objectMap<T extends Record<keyof any, any>, R>(target: T, getter: (value: T[keyof T], index: keyof T, target: T) => R): Record<keyof T, R>
+export function objectMap<T extends Record<keyof any, any>, K extends keyof T[keyof T]>(target: T, prop: K): { [P in keyof T]: T[P][K] }
+export function objectMap(value: Record<keyof any, any>, getter: string | ((value: any, index: keyof any, target: any) => any)) {
+    if (typeof getter == "string") {
+        return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, v[getter]]))
+    } else {
+        return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, getter(v, k, value)]))
+    }
+}
