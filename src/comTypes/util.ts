@@ -1034,6 +1034,7 @@ export function arrayRemove<T>(array: T[], value: T) {
 
 /** Returns a function which executes all provided functions with the same arguments, returning their return values in an array */
 export function multicast<A extends any[], T extends ((...args: A) => any)[]>(...targets: T) {
+    // @ts-ignore Older versions of TypeScript to not accept `ReturnType<T[P]>`, because they don't know `T[P]` is a function
     return (...args: A) => targets.map(v => v(...args)) as { [P in keyof T]: ReturnType<T[P]> }
 }
 
