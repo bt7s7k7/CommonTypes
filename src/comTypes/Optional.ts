@@ -20,12 +20,15 @@ export class Optional<T> {
             const value = factory(this._rejected)
             if (value instanceof Optional) {
                 if (value._rejected) {
+                    this._value = null
                     this._rejected = value._rejected
                 } else {
                     this._value = value._value
+                    this._rejected = null
                 }
             } else {
                 this._value = value
+                this._rejected = null
             }
         }
         return this
