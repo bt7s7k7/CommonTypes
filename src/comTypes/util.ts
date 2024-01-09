@@ -600,7 +600,7 @@ export function isWord(char: string, index = 0) {
     return isAlpha(char, index) || isNumber(char, index) || char[index] == "_"
 }
 
-export function cloneArray<T>(source: T[]) {
+export function cloneArray<T>(source: readonly T[]) {
     return ([] as T[]).concat(source)
 }
 
