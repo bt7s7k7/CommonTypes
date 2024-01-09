@@ -1,5 +1,6 @@
 export * from "./comTypes/GenericParser"
 export * from "./comTypes/Graph"
+export * from "./comTypes/ImmutableList"
 export * from "./comTypes/LinkedList"
 export * from "./comTypes/MultiMap"
 export * from "./comTypes/Optional"
