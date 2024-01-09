@@ -1,6 +1,7 @@
 export type UnionToIntersection<T> = (T extends any ? (x: T) => any : never) extends (x: infer R) => any ? R : never
 export type AbstractConstructor<T = any> = abstract new (...args: any[]) => T
 export type Constructor<T = any> = { new(...args: any[]): T }
+export type ConcreteConstructor<T extends abstract new (...args: any) => any> = new (...args: ConstructorParameters<T>) => InstanceType<T>
 export type Depromisify<T> = T extends Promise<infer U> ? Depromisify<U> : T
 export type FilterPublic<T> = Pick<T, keyof T>
 export type Readwrite<T> = { -readonly [P in keyof T]: T[P] }
