@@ -1114,3 +1114,9 @@ export function objectMap(value: Record<keyof any, any>, getter: string | ((valu
         return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, getter(v, k, value)]))
     }
 }
+
+export function isClassCtor<T>(value: T): value is T extends abstract new (...args: any[]) => any ? T : never
+export function isClassCtor(value: unknown): boolean
+export function isClassCtor(value: unknown): boolean {
+    return typeof value == "function" && value.toString().startsWith("class")
+}
