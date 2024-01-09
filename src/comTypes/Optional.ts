@@ -100,6 +100,17 @@ export class Optional<T> {
         return this
     }
 
+    public notNull(): Optional<NonNullable<T>> {
+        if (this._rejected) return this as any
+
+        if (this._value == null) {
+            this._rejected = new PredicateFailedError("Value is null")
+            this._value = null
+        }
+
+        return this as any
+    }
+
     public filterType<R>(type: AbstractConstructor<R>, msg = `Value was not of type "${type.name}"`): Optional<R> {
         if (this._rejected) return this as any
 
