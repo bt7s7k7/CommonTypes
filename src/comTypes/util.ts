@@ -1120,3 +1120,11 @@ export function isClassCtor(value: unknown): boolean
 export function isClassCtor(value: unknown): boolean {
     return typeof value == "function" && value.toString().startsWith("class")
 }
+
+export function arrayExclude<T, K extends T>(array: readonly T[], value: K): Exclude<T, K>[]
+export function arrayExclude<T>(array: readonly T[], value: T): T[]
+export function arrayExclude(array: readonly any[], value: any) {
+    const clone = cloneArray(array)
+    arrayRemove(clone, value)
+    return clone
+}
