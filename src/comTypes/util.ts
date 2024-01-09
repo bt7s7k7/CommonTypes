@@ -1044,6 +1044,11 @@ export namespace Predicate {
         return (value: unknown): value is T => value instanceof type
     }
 
+    type _Types = { number: number, string: string, boolean: boolean, function: Function, object: object | null, undefined: undefined, symbol: symbol }
+    export function typeOf<K extends keyof _Types>(type: K) {
+        return (value: unknown): value is _Types[K] => typeof value == type
+    }
+
     export function containedIn<T>(collection: { has(value: T): boolean } | { includes(value: T): boolean } | null | undefined) {
         if (collection == null) return (value: T) => false
 
@@ -1056,6 +1061,10 @@ export namespace Predicate {
 
     export function invert<T extends (...args: any[]) => boolean>(predicate: T) {
         return (...args: Parameters<T>) => !predicate(...args)
+    }
+
+    export function notNull<T>() {
+        return (value: T): value is NonNullable<T> => value != null
     }
 
     export function and<T>(...predicates: ((value: T) => boolean)[]) {
