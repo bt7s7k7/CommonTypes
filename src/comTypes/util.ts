@@ -680,13 +680,14 @@ export const mutate = modify
 
 /** Returns the input options sorted by similarity to the query. Use the
  * `getter` function to specify the string representation of an option. */
-export function fuzzySearch<T>(input: string, options: T[], getter: (v: T) => string) {
+export function fuzzySearch<T>(input: string, options: T[], getter: (v: T, i: number, a: T[]) => string) {
     const filteredOptions: { option: T, cost: number }[] = []
 
     input = input.toLowerCase()
 
+    let arrayIndex = 0
     for (let option of options) {
-        const optionText = getter(option).toLowerCase()
+        const optionText = getter(option, arrayIndex++, options).toLowerCase()
         let cost = 0
         let inputIndex = 0
 
