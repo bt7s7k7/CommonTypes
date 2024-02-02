@@ -1164,3 +1164,30 @@ export function arrayExclude(array: readonly any[], value: any) {
     arrayRemove(clone, value)
     return clone
 }
+
+export function splitBetween<T>(sequence: Iterable<T>, groups: number) {
+    const result = [...range(groups, () => [] as T[])]
+
+    let index = 0
+    for (const value of sequence) {
+        result[index % groups].push(value)
+        index++
+    }
+
+    return result
+}
+
+export function partitionSequence<T>(sequence: Iterable<T>, decider: (value: T) => boolean) {
+    const no: T[] = []
+    const yes: T[] = []
+
+    for (const value of sequence) {
+        if (decider(value)) {
+            yes.push(value)
+        } else {
+            no.push(value)
+        }
+    }
+
+    return [no, yes] as const
+}
