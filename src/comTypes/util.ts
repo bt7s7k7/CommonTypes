@@ -392,6 +392,8 @@ export function countOccurrences(target: string, substring: string, pos = 0, max
 
 export function findNthOccurrence(target: string, substring: string, number: number, pos = 0) {
     let count = 0
+    if (number == 0) return 0
+
     pos--
     while ((pos = target.indexOf(substring, pos + 1)) != -1) {
         count++
