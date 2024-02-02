@@ -781,6 +781,40 @@ export function* joinIterable<T>(...iterators: Iterable<T>[]) {
     }
 }
 
+type _Iterators<T extends readonly Iterable<any>[]> = { [P in keyof T]: ReturnType<T[P][typeof Symbol.iterator]> }
+type _IteratorsResult<T> = { [P in keyof T]: T[P] extends Iterator<infer U> ? U : never }
+type _ObjectNullable<T> = { [P in keyof T]: T[P] | null }
+export function joinIterableParallel<T extends readonly Iterable<any>[]>(type: "until-first", ...iterables: T): Generator<_IteratorsResult<_Iterators<T>>, void, unknown>
+export function joinIterableParallel<T extends readonly Iterable<any>[]>(type: "until-last", ...iterables: T): Generator<_ObjectNullable<_IteratorsResult<_Iterators<T>>>, void, unknown>
+export function* joinIterableParallel<T extends readonly Iterable<any>[]>(type: "until-first" | "until-last", ...iterables: T) {
+    const iterators = iterables.map(v => v[Symbol.iterator]()) as _Iterators<T>
+    while (true) {
+        let first = false
+        let all = true
+
+        const iterationResult: any[] = []
+
+        for (const iterator of iterators) {
+            const result = iterator.next()
+            if (result.done) {
+                first = true
+                iterationResult.push(null)
+            } else {
+                all = false
+                iterationResult.push(result.value)
+            }
+        }
+
+        if (type == "until-first" && first) {
+            return
+        } else if (all) {
+            return
+        }
+
+        yield iterationResult
+    }
+}
+
 /** @deprecated This function is only provided for backwards compatibility. */
 export function transformTree<T>(source: T, replacer: (owner: any, prop: keyof any, value: any) => any) {
     function visit(owner: any, prop: keyof any, value: any) {
