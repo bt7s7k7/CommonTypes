@@ -50,6 +50,17 @@ export class LinkedList<T> {
         if (node == this.start) this.start = node.next
     }
 
+    public deleteRange(start: LinkedList.Node<T> | null | undefined, end: LinkedList.Node<T> | null | undefined) {
+        start ??= this.start
+        end ??= this.end
+        if (start == null || end == null) return
+
+        if (end.next) end.next.prev = start.prev
+        if (start.prev) start.prev.next = end.next
+        if (end == this.end) this.end = start.prev
+        if (start == this.start) this.start = end.next
+    }
+
     public clear() {
         this.end = null
         this.start = null
