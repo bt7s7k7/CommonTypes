@@ -612,6 +612,10 @@ export function isWord(char: string, index = 0) {
     return isAlpha(char, index) || isNumber(char, index) || char[index] == "_"
 }
 
+export function isWhitespace(char: string, index = 0) {
+    return char[index] == " " || char[index] == "\r" || char[index] == "\t" || char[index] == "\n"
+}
+
 export function cloneArray<T>(source: readonly T[]) {
     return ([] as T[]).concat(source)
 }
