@@ -2,10 +2,13 @@ interface GenericParser {
     input: string
     index: number
     getCurrent(): string
+    at(offset: number): string
     skipUntil(predicate: (input: string, index: number) => boolean): boolean
     skipUntil(token: string): boolean
     readUntil(predicate: (input: string, index: number) => boolean): string
     readUntil(token: string): string
+    skipWhile(predicate: (input: string, index: number) => boolean): boolean
+    readWhile(predicate: (input: string, index: number) => boolean): string
     readAll(delim: (input: string, index: number) => boolean): string[]
     isDone(): boolean
     clone(input?: string): this
@@ -42,6 +45,12 @@ const genericParserPrototype: Omit<GenericParser, "index" | "input"> & ThisType<
         let end = this.index
 
         return this.input.slice(start, end)
+    },
+    skipWhile(predicate) {
+        return this.skipUntil((v, i) => !predicate(v, i))
+    },
+    readWhile(predicate) {
+        return this.readUntil((v, i) => !predicate(v, i))
     },
     readAll(delim) {
         const tokens: string[] = []
@@ -104,7 +113,8 @@ const genericParserPrototype: Omit<GenericParser, "index" | "input"> & ThisType<
 
         return false
     },
-    getCurrent() { return this.input[this.index] }
+    getCurrent() { return this.input[this.index] },
+    at(offset) { return this.index + offset < this.input.length ? this.input[this.index + offset] : "" }
 }
 
 const GenericParser = function GenericParser<T = {}>(this: GenericParser, input: string = "", extend?: T & ThisType<T & GenericParser>) {
