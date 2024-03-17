@@ -870,6 +870,11 @@ export function escapeHTML(source: string) {
         .replace(/'/g, "&#039;")
 }
 
+/** Escapes all characters matching `[^\w ]`. */
+export function escapeRegex(source: string) {
+    return source.replace(/[^\w ]/g, v => v == "\\" ? "\\\\" : `\\u${v.charCodeAt(0).toString(16).padStart(4, "0")}`)
+}
+
 /** Iterates the provided iterator until reaching the n-th value,
  * which is returned. Default index is 0. When the iterator finished
  * before the specified index is found, an `RangeError` is thrown. */
