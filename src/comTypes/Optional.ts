@@ -45,8 +45,8 @@ export class Optional<T> {
         return this._value
     }
 
-    public tryUnwrap(): T | null {
-        if (this._rejected) return null
+    public tryUnwrap(): T | undefined {
+        if (this._rejected) return undefined
         return this._value
     }
 
@@ -66,6 +66,27 @@ export class Optional<T> {
                 }
             } else {
                 this._value = value
+            }
+        }
+        return this as any
+    }
+
+    public try<A extends any[], R>(thunk: (value: T, ...args: A) => R, ...args: A): Optional<R extends Optional<infer U> ? U : R> {
+        if (!this._rejected) {
+            try {
+                const value = thunk(this._value, ...args)
+                if (value instanceof Optional) {
+                    if (value._rejected) {
+                        this._rejected = value._rejected
+                    } else {
+                        this._value = value._value
+                    }
+                } else {
+                    this._value = value
+                }
+            } catch (err) {
+                this._rejected = asError(err)
+                this._value = null
             }
         }
         return this as any
@@ -105,6 +126,17 @@ export class Optional<T> {
 
         if (this._value == null) {
             this._rejected = new PredicateFailedError("Value is null")
+            this._value = null
+        }
+
+        return this as any
+    }
+
+    public notNaN(): Optional<number> {
+        if (this._rejected) return this as any
+
+        if (typeof this._value != "number" || isNaN(this._value)) {
+            this._rejected = new PredicateFailedError("Value is NaN")
             this._value = null
         }
 
