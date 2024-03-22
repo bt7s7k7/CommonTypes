@@ -1,4 +1,6 @@
+
 const _EMPTY = Symbol.for("kompa.imList.empty")
+
 export class ImmutableList<T> {
     public readonly length: number
 
@@ -58,7 +60,7 @@ export class ImmutableList<T> {
         return this.toArray().join(delim)
     }
 
-    constructor(
+    protected constructor(
         protected readonly _value: T | typeof _EMPTY = _EMPTY,
         protected readonly _prev: ImmutableList<T> | null = null,
         protected readonly _next: ImmutableList<T> | null = null
@@ -83,6 +85,11 @@ export class ImmutableList<T> {
             }
         }
 
-        return node ?? new ImmutableList<T>(_EMPTY, null, null)
+        return node ?? this.empty<T>()
+    }
+
+    protected static _EMPTY_LIST = new ImmutableList(_EMPTY, null, null)
+    public static empty<T>() {
+        return this._EMPTY_LIST as ImmutableList<T>
     }
 }
