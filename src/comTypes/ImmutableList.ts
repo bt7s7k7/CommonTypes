@@ -1,3 +1,4 @@
+import { unreachable } from "./util"
 
 const _EMPTY = Symbol.for("kompa.imList.empty")
 
@@ -60,6 +61,20 @@ export class ImmutableList<T> {
         return this.toArray().join(delim)
     }
 
+    public getFirst(): T {
+        if (this.length == 0) throw new RangeError("Cannot get first value of an ImmutableList")
+        if (this._prev) return this._prev.getFirst()
+        if (this._value == _EMPTY) unreachable()
+        return this._value
+    }
+
+    public getLast(): T {
+        if (this.length == 0) throw new RangeError("Cannot get last value of an ImmutableList")
+        if (this._next) return this._next.getLast()
+        if (this._value == _EMPTY) unreachable()
+        return this._value
+    }
+
     protected constructor(
         protected readonly _value: T | typeof _EMPTY = _EMPTY,
         protected readonly _prev: ImmutableList<T> | null = null,
@@ -88,7 +103,7 @@ export class ImmutableList<T> {
         return node ?? this.empty<T>()
     }
 
-    protected static _EMPTY_LIST = new ImmutableList(_EMPTY, null, null)
+    protected static _EMPTY_LIST = new ImmutableList<any>(_EMPTY, null, null)
     public static empty<T>() {
         return this._EMPTY_LIST as ImmutableList<T>
     }
