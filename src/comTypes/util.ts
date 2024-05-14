@@ -536,6 +536,21 @@ export function* iterableTake<T>(iterable: Iterable<T> | Iterator<T>, count: num
     }
 }
 
+/** Skips a number of values returned from an iterator. If the iterator finishes sooner, no values are returned */
+export function* iterableSkip<T>(iterable: Iterable<T> | Iterator<T>, count: number) {
+    const iterator = Symbol.iterator in iterable ? iterable[Symbol.iterator]() : iterable
+    for (let i = 0; i < count; i++) {
+        const result = iterator.next()
+        if (result.done) return
+    }
+
+    while (true) {
+        const result = iterator.next()
+        if (result.done) return
+        yield result.value
+    }
+}
+
 /** Splits an array into smaller chunks by sentinel elements (determined by `predicate`). First element must be a sentinel, otherwise throws. */
 export function unzip<T>(source: ArrayLike<T>, predicate: (v: T, i: number) => boolean) {
     const pairs: [sentinel: T, elements: T[]][] = []
