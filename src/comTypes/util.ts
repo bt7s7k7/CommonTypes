@@ -1263,3 +1263,24 @@ export function setValueByPath(receiver: object, path: (keyof any)[], value: any
 
     assignTarget[path[path.length - 1]] = value
 }
+
+type _FilterOptional<T> = { [P in keyof T as undefined extends T[P] ? P : never]-?: T[P] }
+type _FilterRequired<T> = { [P in keyof T as undefined extends T[P] ? never : P]?: T[P] }
+type _InvertOptional<T> = _FilterOptional<T> & _FilterRequired<T>
+type _RecordClass<T> = { new(options: _InvertOptional<T>): Required<T> }
+
+/** Creates a class with automatically typed constructor options. To get readonly properties use the `readonly` keyword.
+ * @example
+ *  class Foo extends recordClass(class {
+ *      declare requiredValue?: string
+ *      public optionalValue = "default value"
+ *  }) {}
+ */
+export function recordClass<T>(prototype: AbstractConstructor<T>) {
+    return class extends (prototype as any) {
+        constructor(opts: object) {
+            super()
+            Object.assign(this, opts)
+        }
+    } as _RecordClass<T>
+}
