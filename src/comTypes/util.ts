@@ -770,13 +770,12 @@ export function convertCase<K extends CaseType | "array">(input: string, inputTy
                         : unreachable()
     )
 
-
     const words: string[] = []
     for (let i = 0; i < tokens.length; i++) {
         if (i % 2 == 1) continue
 
         let word = tokens[i]
-        if (i != 0 && inputType == "camel" || inputType == "pascal" || inputType == "title") {
+        if (i != 0 && (inputType == "camel" || inputType == "pascal" || inputType == "title")) {
             const prefix = tokens[i - 1]
             word = prefix.toLowerCase() + word
         }
@@ -784,7 +783,7 @@ export function convertCase<K extends CaseType | "array">(input: string, inputTy
         words.push(word)
     }
 
-    if (inputType == "title") words.shift()
+    if (inputType == "title" || inputType == "pascal") words.shift()
 
     if (outputType == "array") return words as any
     if (outputType == "kebab") return words.join("-") as any
