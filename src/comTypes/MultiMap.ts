@@ -126,8 +126,10 @@ export class MultiMap<I, T extends Record<string, MultiMap.InternalTypes.KeySpec
      * class ArticleDatabase extends MultiMap.type(MultiMap.entity<Article>(), { ... }) { }
      * */
     public static type<I, T extends Record<string, MultiMap.InternalTypes.KeySpecifier<any, boolean, boolean>>>(entity: MultiMap.InternalTypes.EntitySpecifier<I>, keyTypes: T) {
-        return function () {
-            return new MultiMap(entity, keyTypes)
+        return class extends MultiMap<I, T> {
+            constructor() {
+                super(entity, keyTypes)
+            }
         } as unknown as new () => MultiMap<I, T>
     }
 }
