@@ -1224,3 +1224,42 @@ export function partitionSequence<T>(sequence: Iterable<T>, decider: (value: T) 
 
     return [no, yes] as const
 }
+
+export function getValueByPath(target: object, path: (keyof any)[]) {
+    for (const segment of path) {
+        target = (target as any)[segment]
+        if (target == null) return null
+    }
+
+    return target as any
+}
+
+export function setValueByPath(receiver: object, path: (keyof any)[], value: any) {
+    path = cloneArray(path)
+
+    let assignTarget = receiver as any
+    for (let i = 0; i < path.length - 1; i++) {
+        let segment = path[i]
+        const nextSegment = i + 1 < path.length ? path[i + 1] : null
+
+        if (typeof nextSegment == "number") {
+            assignTarget[segment] ??= []
+        } else {
+            assignTarget[segment] ??= {}
+        }
+
+        if (typeof segment == "number") {
+            if (segment < 0) {
+                segment = (assignTarget.length as number) + segment
+            }
+
+            if (segment < 0 || segment >= assignTarget.length) {
+                segment = assignTarget.length
+            }
+        }
+
+        assignTarget = assignTarget[segment]
+    }
+
+    assignTarget[path[path.length - 1]] = value
+}
