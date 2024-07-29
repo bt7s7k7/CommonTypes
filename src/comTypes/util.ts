@@ -1331,3 +1331,13 @@ export function* iterableInterject(iterable: Iterable<any>, interjection: (prev:
         prev = value
     }
 }
+
+export function createSortFunction<T, R>(getter: (value: T) => R, order: "ascending" | "descending") {
+    return (a: T, b: T) => {
+        const valueA = getter(a)
+        const valueB = getter(b)
+
+        const ordering = valueA > valueB ? 1 : valueA < valueB ? -1 : 0
+        return order == "ascending" ? ordering : -ordering
+    }
+}
