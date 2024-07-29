@@ -1307,3 +1307,27 @@ export function recordClass<T>(prototype: AbstractConstructor<T>) {
         }
     } as _RecordClass<T>
 }
+
+export function iterableInterject<T, U>(iterable: Iterable<T>, interjection: U): Generator<T | U, void, void>
+export function iterableInterject<T, U>(iterable: Iterable<T>, interjection: (prev: T, next: T) => U): Generator<T | U, void, void>
+export function* iterableInterject(iterable: Iterable<any>, interjection: (prev: any, next: any) => any) {
+    let first = true
+    let prev: any = null
+    for (const value of iterable) {
+        if (first) {
+            prev = value
+            first = false
+            yield value
+            continue
+        }
+
+        if (typeof interjection == "function") {
+            yield interjection(prev, value)
+        } else {
+            yield interjection
+        }
+
+        yield value
+        prev = value
+    }
+}
