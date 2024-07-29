@@ -515,6 +515,13 @@ export function* iterableMap<T, R>(iterable: Iterable<T>, thunk: (v: T, i: numbe
     }
 }
 
+export function* iterableFlatMap<T, R>(iterable: Iterable<T>, generator: (v: T, i: number) => Generator<R, void, void>) {
+    let i = 0
+    for (const value of iterable) {
+        yield* generator(value, i++)
+    }
+}
+
 /** Iterates the iterator until predicate succeeds, returns the index. */
 export function iterableFind<T>(iterable: Iterable<T>, predicate: (v: T, i: number) => boolean) {
     let i = 0
