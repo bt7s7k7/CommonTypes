@@ -1341,3 +1341,9 @@ export function createSortFunction<T, R>(getter: (value: T) => R, order: "ascend
         return order == "ascending" ? ordering : -ordering
     }
 }
+
+export function mapConcat<K, V>(mapA: Map<K, V>, mapB: Map<K, V>) {
+    const newMap = new Map(mapA)
+    for (const [key, value] of mapB) newMap.set(key, value)
+    return newMap
+}
