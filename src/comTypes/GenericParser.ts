@@ -119,7 +119,7 @@ const genericParserPrototype: Omit<GenericParser, "index" | "input"> & ThisType<
         return false
     },
     getCurrent() { return this.input[this.index] },
-    at(offset) { return this.index + offset < this.input.length ? this.input[this.index + offset] : "" }
+    at(offset) { return this.index + offset < this.input.length && this.index + offset >= 0 ? this.input[this.index + offset] : "" }
 }
 
 const GenericParser = function GenericParser<T = {}>(this: GenericParser, input: string = "", extend?: T & ThisType<T & GenericParser>) {
