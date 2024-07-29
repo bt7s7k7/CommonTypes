@@ -1215,6 +1215,12 @@ export function arrayExclude(array: readonly any[], value: any) {
     return clone
 }
 
+export function arrayPushUnique<T>(array: T[], ...values: T[]) {
+    for (const value of values) {
+        if (!array.includes(value)) array.push(value)
+    }
+}
+
 export function splitBetween<T>(sequence: Iterable<T>, groups: number) {
     const result = [...range(groups, () => [] as T[])]
 
