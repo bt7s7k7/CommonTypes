@@ -17,6 +17,7 @@ interface GenericParser {
     consume<T extends string>(tokens: T[]): T | null
     matches(token: string): boolean
     matches<T extends string>(tokens: T[]): T | null
+    matches(predicate: (input: string, index: number) => boolean): boolean
 }
 const genericParserPrototype: Omit<GenericParser, "index" | "input"> & ThisType<GenericParser> = {
     skipUntil(predicate: string | ((input: string, index: number) => boolean)) {
@@ -80,7 +81,11 @@ const genericParserPrototype: Omit<GenericParser, "index" | "input"> & ThisType<
     isDone() {
         return this.index >= this.input.length
     },
-    matches(token: string | string[]): any {
+    matches(token: string | string[] | ((input: string, index: number) => boolean)): any {
+        if (typeof token == "function") {
+            return token(this.input, this.index)
+        }
+
         if (token instanceof Array) {
             for (const element of token) {
                 if (this.matches(element)) {
