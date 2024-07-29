@@ -1,5 +1,5 @@
 import { GenericParser } from "./GenericParser"
-import { AbstractConstructor, Constructor } from "./types"
+import { AbstractConstructor, Constructor, MapKey, MapValue } from "./types"
 
 export function makeRandomID() {
     const bytes = new Array<number>(16)
@@ -1188,6 +1188,16 @@ export function objectMap(value: Record<keyof any, any>, getter: string | ((valu
         return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, v[getter]]))
     } else {
         return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, getter(v, k, value)]))
+    }
+}
+
+export function mapMap<T extends Map<any, any>, R>(target: T, getter: (value: MapValue<T>, index: MapKey<T>, target: T) => R): Map<MapKey<T>, R>
+export function mapMap<T extends Map<any, any>, K extends keyof MapValue<T>>(target: T, prop: K): Map<MapKey<T>, MapValue<T>[K]>
+export function mapMap(value: Map<keyof any, any>, getter: string | ((value: any, index: any, target: any) => any)) {
+    if (typeof getter == "string") {
+        return new Map([...value].map(([k, v]) => [k, v[getter]]))
+    } else {
+        return new Map([...value].map(([k, v]) => [k, getter(v, k, value)]))
     }
 }
 
