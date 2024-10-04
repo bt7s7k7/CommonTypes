@@ -473,6 +473,10 @@ export class Task<T = void> {
         this.state = { type: "rejected", error }
     }
 
+    public completeWith(thunk: () => Promise<T>) {
+        thunk().then(result => this.resolve(result), error => this.reject(error))
+    }
+
     public then(...args: Parameters<Promise<T>["then"]>): ReturnType<Promise<T>["then"]> {
         return this.promise.then(...args)
     }
