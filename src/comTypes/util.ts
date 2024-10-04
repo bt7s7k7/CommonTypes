@@ -1392,3 +1392,26 @@ export function bufferConcat(buffers: (ArrayBuffer | ArrayBufferView)[]) {
 
     return result
 }
+
+export function nearestPowerOf2(value: number) {
+    // Calculate the number of binary zeroes before the start of the number
+    const zeroes = Math.clz32(value) - 1
+    // Create a number such that all binary digits after the first one are zero
+    // Example:
+    //   For number 5: 0b00000101
+    //         Result: 0b00000100
+    const po2Smaller = 0x40000000 >> zeroes
+    if (value == po2Smaller) {
+        // If the number is already a power of two it will be equal to po2Smaller
+        return value
+    }
+
+    // Create a number such that all binary digits after the first one are one
+    // Example:
+    //   For number 5: 0b00000101
+    //         Result: 0b00000111
+    const filled = 0x7FFFFFFF >> zeroes
+    // Because the number is all ones, adding +1 will result in a power of 2
+    const po2Bigger = filled + 1
+    return po2Bigger
+}
