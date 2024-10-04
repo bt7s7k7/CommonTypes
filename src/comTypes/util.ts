@@ -338,6 +338,28 @@ export function vlqDecode(source: Uint8Array | number[] | string) {
     return result
 }
 
+export function vlqDecodeOne(source: Uint8Array, index: number = 0) {
+    let value = 0
+    let shift = 0
+
+    for (; index < source.length; index++) {
+        const segment = source[index]
+        const digit = segment & VLQ_BASE_MASK
+
+        value += digit << shift
+        shift += VLQ_BASE_SHIFT
+
+        if ((segment & VLQ_CONTINUE) == 0) {
+            const negate = (value & 1) == 1
+            value >>= 1
+            index++
+            return [negate ? -value : value, index]
+        }
+    }
+
+    return [0, index]
+}
+
 type VLQEncodeType = "base64" | "binary" | "array"
 type VLQEncodeResult = {
     "base64": string,
