@@ -1373,3 +1373,22 @@ export function mapConcat<K, V>(mapA: Map<K, V>, mapB: Map<K, V>) {
     for (const [key, value] of mapB) newMap.set(key, value)
     return newMap
 }
+
+export function bufferConcat(buffers: (ArrayBuffer | ArrayBufferView)[]) {
+    let length = 0
+
+    for (const value of buffers) {
+        length += value.byteLength
+    }
+
+    const result = new Uint8Array(length)
+    let pointer = 0
+
+    for (const value of buffers) {
+        const array = ArrayBuffer.isView(value) ? new Uint8Array(value.buffer, value.byteOffset, value.byteLength) : new Uint8Array(value)
+        result.set(array, pointer)
+        pointer += value.byteLength
+    }
+
+    return result
+}
