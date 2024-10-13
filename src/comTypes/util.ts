@@ -1415,3 +1415,11 @@ export function nearestPowerOf2(value: number) {
     const po2Bigger = filled + 1
     return po2Bigger
 }
+
+export function* iPairs<T>(iterator: Iterable<T>) {
+    let index = 0
+    for (const value of iterator) {
+        yield [value, index] as const
+        index++
+    }
+}
