@@ -143,12 +143,23 @@ export class Optional<T> {
         return this as any
     }
 
-    public filterType<R>(type: AbstractConstructor<R>, msg = `Value was not of type "${type.name}"`): Optional<R> {
+    public filterType<R>(type: AbstractConstructor<R>, msg?: string): Optional<R>
+    public filterType<K extends "string" | "number" | "boolean" | "function" | "symbol" | "object" | "undefined">(type: K, msg?: string): Optional<{
+        string: string, number: number, boolean: boolean, function: (...args: any) => any, symbol: symbol, object: object | null, undefined: undefined
+    }[K]>
+    public filterType(type: AbstractConstructor | string, msg = `Value was not of type "${typeof type == "string" ? type : type.name}"`): Optional<any> {
         if (this._rejected) return this as any
 
-        if (!(this._value instanceof type)) {
-            this._rejected = new PredicateFailedError(msg)
-            this._value = null
+        if (typeof type == "string") {
+            if (typeof this._value != type) {
+                this._rejected = new PredicateFailedError(msg)
+                this._value = null
+            }
+        } else {
+            if (!(this._value instanceof type)) {
+                this._rejected = new PredicateFailedError(msg)
+                this._value = null
+            }
         }
 
         return this as any
