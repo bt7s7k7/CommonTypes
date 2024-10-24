@@ -1,26 +1,17 @@
-interface GenericParser {
-    input: string
-    index: number
-    getCurrent(): string
-    at(offset: number): string
-    skipUntil(predicate: (input: string, index: number) => boolean): boolean
-    skipUntil(token: string): boolean
-    readUntil(predicate: (input: string, index: number) => boolean): string
-    readUntil(token: string): string
-    skipWhile(predicate: (input: string, index: number) => boolean): boolean
-    readWhile(predicate: (input: string, index: number) => boolean): string
-    readAll(delim: (input: string, index: number) => boolean): string[]
-    isDone(): boolean
-    clone(input?: string): this
-    restart(input: string): this
-    consume(token: string): boolean
-    consume<T extends string>(tokens: T[]): T | null
-    matches(token: string): boolean
-    matches<T extends string>(tokens: T[]): T | null
-    matches(predicate: (input: string, index: number) => boolean): boolean
-}
-const genericParserPrototype: Omit<GenericParser, "index" | "input"> & ThisType<GenericParser> = {
-    skipUntil(predicate: string | ((input: string, index: number) => boolean)) {
+export class GenericParser {
+    public index = 0
+
+    public getCurrent() {
+        return this.input[this.index]
+    }
+
+    public at(offset: number) {
+        return this.index + offset < this.input.length && this.index + offset >= 0 ? this.input[this.index + offset] : ""
+    }
+
+    public skipUntil(predicate: (input: string, index: number) => boolean): boolean
+    public skipUntil(token: string): boolean
+    public skipUntil(predicate: string | ((input: string, index: number) => boolean)) {
         if (typeof predicate == "string") {
             const search = predicate
             predicate = (v, i) => v.startsWith(search, i)
@@ -34,8 +25,11 @@ const genericParserPrototype: Omit<GenericParser, "index" | "input"> & ThisType<
         }
 
         return false
-    },
-    readUntil(predicate: string | ((input: string, index: number) => boolean)) {
+    }
+
+    public readUntil(predicate: (input: string, index: number) => boolean): string
+    public readUntil(token: string): string
+    public readUntil(predicate: string | ((input: string, index: number) => boolean)) {
         if (typeof predicate == "string") {
             const search = predicate
             predicate = (v, i) => v.startsWith(search, i)
@@ -46,14 +40,17 @@ const genericParserPrototype: Omit<GenericParser, "index" | "input"> & ThisType<
         let end = this.index
 
         return this.input.slice(start, end)
-    },
-    skipWhile(predicate) {
+    }
+
+    public skipWhile(predicate: (input: string, index: number) => boolean) {
         return this.skipUntil((v, i) => !predicate(v, i))
-    },
-    readWhile(predicate) {
+    }
+
+    public readWhile(predicate: (input: string, index: number) => boolean) {
         return this.readUntil((v, i) => !predicate(v, i))
-    },
-    readAll(delim) {
+    }
+
+    public readAll(delim: (input: string, index: number) => boolean) {
         const tokens: string[] = []
         while (!this.isDone()) {
             tokens.push(this.readUntil(delim))
@@ -63,25 +60,52 @@ const genericParserPrototype: Omit<GenericParser, "index" | "input"> & ThisType<
             }
         }
         return tokens
-    },
-    clone(input) {
-        const clone = Object.assign(Object.create(genericParserPrototype), this)
+    }
+
+    public isDone() {
+        return this.index >= this.input.length
+    }
+
+    public clone(input?: string) {
+        const clone = Object.assign(Object.create(this.constructor.prototype), this) as this
         if (input != undefined) {
             clone.input = input
             clone.index = 0
         }
 
         return clone
-    },
-    restart(input) {
+    }
+
+    public restart(input: string) {
         this.input = input
         this.index = 0
         return this
-    },
-    isDone() {
-        return this.index >= this.input.length
-    },
-    matches(token: string | string[] | ((input: string, index: number) => boolean)): any {
+    }
+
+    public consume(token: string): boolean
+    public consume<T extends string>(tokens: T[]): T | null
+    public consume(token: string | string[]): any {
+        if (token instanceof Array) {
+            for (const element of token) {
+                if (this.consume(element)) {
+                    return element
+                }
+            }
+            return null
+        }
+
+        if (this.input.startsWith(token, this.index)) {
+            this.index += token.length
+            return true
+        }
+
+        return false
+    }
+
+    public matches(token: string): boolean
+    public matches<T extends string>(tokens: T[]): T | null
+    public matches(predicate: (input: string, index: number) => boolean): boolean
+    public matches(token: string | string[] | ((input: string, index: number) => boolean)): any {
         if (typeof token == "function") {
             return token(this.input, this.index)
         }
@@ -100,36 +124,9 @@ const genericParserPrototype: Omit<GenericParser, "index" | "input"> & ThisType<
         }
 
         return false
-    },
-    consume(token: string | string[]): any {
-        if (token instanceof Array) {
-            for (const element of token) {
-                if (this.consume(element)) {
-                    return element
-                }
-            }
-            return null
-        }
+    }
 
-        if (this.input.startsWith(token, this.index)) {
-            this.index += token.length
-            return true
-        }
-
-        return false
-    },
-    getCurrent() { return this.input[this.index] },
-    at(offset) { return this.index + offset < this.input.length && this.index + offset >= 0 ? this.input[this.index + offset] : "" }
+    constructor(
+        public input: string
+    ) { }
 }
-
-const GenericParser = function GenericParser<T = {}>(this: GenericParser, input: string = "", extend?: T & ThisType<T & GenericParser>) {
-    return Object.assign(
-        this,
-        { input, index: 0 },
-        extend
-    ) as T & GenericParser
-} as unknown as { new <T = {}>(input?: string, extend?: T & ThisType<T & GenericParser>): T & GenericParser }
-
-GenericParser.prototype = genericParserPrototype
-
-export { GenericParser }

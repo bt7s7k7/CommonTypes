@@ -938,11 +938,6 @@ export function iteratorNth<T>(iterator: Iterator<T> | Iterable<T>, index = 0) {
     }
 }
 
-/** @deprecated Use the `GenericParser` constructor */
-export function makeGenericParser<T = {}>(input: string = "", extend?: T & ThisType<T & GenericParser>) {
-    return new GenericParser(input, extend)
-}
-
 /** Creates an object from the provided iterable,
  * with the property names being based on the specified property.
  * The returned object has a null prototype. */
