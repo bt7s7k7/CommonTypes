@@ -2,10 +2,16 @@ import { GenericParser } from "./GenericParser"
 import { AbstractConstructor, Constructor, MapKey, MapValue } from "./types"
 
 export function makeRandomID() {
-    const bytes = new Array<number>(16)
+    let bytes: number[] | Uint8Array
+    if ("crypto" in globalThis) {
+        bytes = new Uint8Array(16)
+        crypto.getRandomValues(bytes)
+    } else {
+        bytes = new Array<number>(16)
 
-    for (let i = 0; i < 16; i++) {
-        bytes[i] = Math.floor(Math.random() * 256)
+        for (let i = 0; i < 16; i++) {
+            bytes[i] = Math.floor(Math.random() * 256)
+        }
     }
 
     const base64 = toBase64Binary(bytes)
