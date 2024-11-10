@@ -5,7 +5,8 @@ export function makeRandomID() {
     let bytes: number[] | Uint8Array
     if ("crypto" in globalThis) {
         bytes = new Uint8Array(16)
-        crypto.getRandomValues(bytes)
+        // @ts-ignore
+        globalThis.crypto.getRandomValues(bytes)
     } else {
         bytes = new Array<number>(16)
 
@@ -63,7 +64,7 @@ export function makePropertyObserver<T extends Record<keyof any, any>, K extends
         set(v) {
             callback(v, value)
             value = v
-        }
+        },
     })
 }
 
@@ -293,12 +294,12 @@ export function unreachable(reason = "Reached unreachable code"): never {
 }
 
 /** Binds all function in an object to always have `this` as the object. Use the `transform` function if you want to replace some functions. */
-export function bindObjectFunction<T>(object: T, transform?: (v: Function, key: string) => Function): T {
+export function bindObjectFunction<T>(object: T, transform?: (v: (...args: any) => any, key: string) => (...args: any) => any): T {
     for (const key in object) {
         if (key[0] == key[0].toUpperCase()) continue
 
         if (typeof object[key] == "function") {
-            let func = (object[key] as unknown as Function)
+            let func = (object[key] as unknown as (...args: any) => any)
             func = func.bind(object)
             if (transform) func = transform(func, key)
             void ((object as any)[key] = func)
@@ -806,7 +807,7 @@ export function convertCase<K extends CaseType | "array">(input: string, inputTy
             : inputType == "snake" ? (input, index) => input[index] == "_"
                 : inputType == "kebab" ? (input, index) => input[index] == "-"
                     : inputType == "title" ? (input, index) => input[index] == " "
-                        : unreachable()
+                        : unreachable(),
     )
 
     const words: string[] = []
@@ -1147,7 +1148,7 @@ export namespace Predicate {
         return (value: unknown): value is T => value instanceof type
     }
 
-    type _Types = { number: number, string: string, boolean: boolean, function: Function, object: object | null, undefined: undefined, symbol: symbol }
+    type _Types = { number: number, string: string, boolean: boolean, function: (...args: any) => any, object: object | null, undefined: undefined, symbol: symbol }
     export function typeOf<K extends keyof _Types>(type: K) {
         return (value: unknown): value is _Types[K] => typeof value == type
     }

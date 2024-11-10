@@ -121,7 +121,7 @@ export namespace LinkedList {
         constructor(
             public value: T,
             public prev: Node<T> | null,
-            public next: Node<T> | null
+            public next: Node<T> | null,
         ) { }
     }
 }

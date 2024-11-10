@@ -65,7 +65,7 @@ export class SortedArray<T> {
     }
 
     constructor(
-        public comparator: (a: T, target: T) => number
+        public comparator: (a: T, target: T) => number,
     ) { }
 
     public static adopt<T>(array: T[], comparator: (a: T, target: T) => number) {

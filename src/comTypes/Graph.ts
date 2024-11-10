@@ -15,7 +15,7 @@ export class Graph<T = void> {
         "from": MultiMap.sharedKey<Graph.Node<T>>(),
         "to": MultiMap.sharedKey<Graph.Node<T>>(),
         "connects": MultiMap.sharedMultipleKey((v: Graph.Edge<T>) => [v.from, v.to]),
-        "id": MultiMap.key<string>()
+        "id": MultiMap.key<string>(),
     })
 
     public addNode(userData: T) {
@@ -92,7 +92,7 @@ export class Graph<T = void> {
 
     constructor(
         copy?: Graph<T>,
-        userDataCopy?: (v: T) => T
+        userDataCopy?: (v: T) => T,
     ) {
         if (copy) {
             const nodeById = new Map<number, Graph.Node<T>>()
@@ -131,7 +131,7 @@ export namespace Graph {
         constructor(
             public readonly graph: Graph<T>,
             public userData: T,
-            public readonly id = graph["_nextID"]++
+            public readonly id = graph["_nextID"]++,
         ) { }
     }
 

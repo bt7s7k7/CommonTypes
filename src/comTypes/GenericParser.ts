@@ -127,6 +127,6 @@ export class GenericParser {
     }
 
     constructor(
-        public input: string
+        public input: string,
     ) { }
 }

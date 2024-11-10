@@ -78,7 +78,7 @@ export class ImmutableList<T> {
     protected constructor(
         protected readonly _value: T | typeof _EMPTY = _EMPTY,
         protected readonly _prev: ImmutableList<T> | null = null,
-        protected readonly _next: ImmutableList<T> | null = null
+        protected readonly _next: ImmutableList<T> | null = null,
     ) {
         this.length = (
             (_value == _EMPTY ? 0 : 1) +

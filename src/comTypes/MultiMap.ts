@@ -108,7 +108,7 @@ export class MultiMap<I, T extends Record<string, MultiMap.InternalTypes.KeySpec
 
     constructor(
         entity: MultiMap.InternalTypes.EntitySpecifier<I>,
-        protected readonly keyTypes: T
+        protected readonly keyTypes: T,
     ) {
         for (const [name, key] of Object.entries(keyTypes)) {
             if (key.shared) {
@@ -140,7 +140,7 @@ export namespace MultiMap {
         return {
             shared: false,
             multiple: false,
-            generator
+            generator,
         } as MultiMap.InternalTypes.KeySpecifier<T, false, false>
     }
 
@@ -149,7 +149,7 @@ export namespace MultiMap {
         return {
             shared: true,
             multiple: false,
-            generator
+            generator,
         } as MultiMap.InternalTypes.KeySpecifier<T, true, false>
     }
 
@@ -158,7 +158,7 @@ export namespace MultiMap {
         return {
             shared: false,
             multiple: true,
-            generator
+            generator,
         } as MultiMap.InternalTypes.KeySpecifier<T, false, true>
     }
 
@@ -167,7 +167,7 @@ export namespace MultiMap {
         return {
             shared: true,
             multiple: true,
-            generator
+            generator,
         } as MultiMap.InternalTypes.KeySpecifier<T, true, true>
     }
 
