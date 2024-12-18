@@ -1029,19 +1029,27 @@ export function lerpNumber(from: number, to: number, t: number) {
 }
 
 /**
+ * Creates a shallow clone of the provided object, maintaining it's prototype.
+ */
+export function shallowClone<T extends object>(object: T) {
+    return Object.assign(Object.create(Object.getPrototypeOf(object)), object) as T
+}
+
+/**
  * Creates a shallow clone of the provided object, maintaining it's prototype, and deletes the specified properties.
  */
-export function cloneWithout<T>(object: T, ...omit: (keyof T)[]) {
-    const clone = Object.assign(Object.create(Object.getPrototypeOf(object)), object)
+export function cloneWithout<T extends object>(object: T, ...omit: (keyof T)[]) {
+    const clone = shallowClone(object)
     for (const key of omit) delete clone[key]
     return clone
 }
 
+
 /**
  * Creates a shallow clone of the provided object, maintaining it's prototype.
  */
-export function shallowClone<T>(object: T) {
-    return cloneWithout(object) as T
+export function cloneWith<T extends object>(object: T, params: Partial<T>) {
+    return Object.assign(shallowClone(object), params)
 }
 
 /**
