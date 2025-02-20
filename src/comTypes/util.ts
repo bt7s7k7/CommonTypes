@@ -159,7 +159,7 @@ export function autoFilter<T>(source: (T | null | false | undefined | T[])[]) {
 
 const BASE_64_INDEX = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 
-export function toBase64Binary(source: ArrayBuffer | number[]) {
+export function toBase64Binary(source: ArrayBuffer | Uint8Array | number[]) {
     const input = source instanceof Array ? source : new Uint8Array(ensureArrayBuffer(source))
     const inputLength = input.length
     const segmentsCount = Math.ceil(inputLength / 3)
