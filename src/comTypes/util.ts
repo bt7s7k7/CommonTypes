@@ -95,7 +95,9 @@ export class TypedMap {
         return ret as { [P in keyof T]: InstanceType<T[P]> }
     }
 
-    public [Symbol.iterator] = () => this.store[Symbol.iterator]()
+    public [Symbol.iterator]() { return this.store[Symbol.iterator]() }
+    public values() { return this.store.values() }
+    public keys() { return this.store.keys() }
 
     protected store = new Map<AbstractConstructor, any>()
 }
