@@ -71,19 +71,19 @@ export function makePropertyObserver<T extends Record<keyof any, any>, K extends
 /** A `Map` indexed by the class of its values. */
 export class TypedMap {
 
-    public get<T extends Constructor>(key: T): InstanceType<T> | null {
+    public get<T extends AbstractConstructor>(key: T): InstanceType<T> | null {
         return this.store.get(key)
     }
 
-    public set<T extends Constructor>(key: T, value: InstanceType<T>) {
+    public set<T extends AbstractConstructor>(key: T, value: InstanceType<T>) {
         this.store.set(key, value)
     }
 
-    public delete(key: Constructor) {
+    public delete(key: AbstractConstructor) {
         return this.store.delete(key)
     }
 
-    public load<T extends Record<string, Constructor>>(query: T) {
+    public load<T extends Record<string, AbstractConstructor>>(query: T) {
         const ret: Record<string, any> = {}
 
         for (const [key, value] of Object.entries(query)) {
@@ -97,7 +97,7 @@ export class TypedMap {
 
     public [Symbol.iterator] = () => this.store[Symbol.iterator]()
 
-    protected store = new Map<Constructor, any>()
+    protected store = new Map<AbstractConstructor, any>()
 }
 
 /** Ensures the value is an instance of an `Error`. */
