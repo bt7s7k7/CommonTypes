@@ -6,6 +6,8 @@ export const EMPTY_SET: ReadonlySet<any> = new Set<any>()
 export const EMPTY_MAP: ReadonlyMap<any, any> = new Map<any, any>()
 /** Singleton function returning its argument to prevent allocation for initializing default values. */
 export const NOOP = <T>(v: T) => v
+/** Singleton function returning void to prevent allocation for initializing default values. */
+export const VOID = () => { }
 export const EMPTY_ITERATOR: IterableIterator<any> = {
     next() { return { value: undefined, done: true } },
     return(value) { return { value, done: true } },
