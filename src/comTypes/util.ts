@@ -798,7 +798,7 @@ export function camelToTitleCase(camel: string) {
     return camel.replace(/^./, v => v.toLowerCase()).replace(/[A-Z]/g, v => " " + v).replace(/^./, v => v.toUpperCase())
 }
 
-type CaseType = "camel" | "snake" | "kebab" | "pascal" | "title"
+type CaseType = "camel" | "snake" | "kebab" | "pascal" | "title" | "const"
 /** Converts between programming cases. The input is first split into
  * tokens the joined together based on the `outputType`, to get a raw list
  * of tokens set `array` as the output type. */
@@ -807,9 +807,10 @@ export function convertCase<K extends CaseType | "array">(input: string, inputTy
     const tokens = parser.readAll(
         inputType == "camel" || inputType == "pascal" ? (input, index) => isUpperCase(input[index])
             : inputType == "snake" ? (input, index) => input[index] == "_"
-                : inputType == "kebab" ? (input, index) => input[index] == "-"
-                    : inputType == "title" ? (input, index) => input[index] == " "
-                        : unreachable(),
+                : inputType == "const" ? (input, index) => input[index] == "_"
+                    : inputType == "kebab" ? (input, index) => input[index] == "-"
+                        : inputType == "title" ? (input, index) => input[index] == " "
+                            : unreachable(),
     )
 
     const words: string[] = []
@@ -822,6 +823,10 @@ export function convertCase<K extends CaseType | "array">(input: string, inputTy
             word = prefix.toLowerCase() + word
         }
 
+        if (inputType == "const") {
+            word = word.toLowerCase()
+        }
+
         words.push(word)
     }
 
@@ -830,6 +835,7 @@ export function convertCase<K extends CaseType | "array">(input: string, inputTy
     if (outputType == "array") return words as any
     if (outputType == "kebab") return words.join("-") as any
     if (outputType == "snake") return words.join("_") as any
+    if (outputType == "const") return words.join("_").toUpperCase() as any
 
     for (let i = 0; i < words.length; i++) {
         if (outputType == "camel" && i == 0) continue
