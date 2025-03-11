@@ -347,7 +347,7 @@ export function vlqDecode(source: Uint8Array | number[] | string) {
     return result
 }
 
-export function vlqDecodeOne(source: Uint8Array, index: number = 0) {
+export function vlqDecodeOne(source: Uint8Array, index: number = 0): [value: number, index: number] {
     let value = 0
     let shift = 0
 
