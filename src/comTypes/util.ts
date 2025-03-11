@@ -1,5 +1,5 @@
 import { GenericParser } from "./GenericParser"
-import { AbstractConstructor, Constructor, MapKey, MapValue } from "./types"
+import { AbstractConstructor, MapKey, MapValue } from "./types"
 
 export function makeRandomID() {
     let bytes: number[] | Uint8Array
