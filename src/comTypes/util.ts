@@ -1435,3 +1435,13 @@ export function* iPairs<T>(iterator: Iterable<T>) {
         index++
     }
 }
+
+export async function asyncReadAll<T>(iterable: AsyncIterable<T>) {
+    const result: T[] = []
+
+    for await (const chunk of iterable) {
+        result.push(chunk)
+    }
+
+    return result
+}
