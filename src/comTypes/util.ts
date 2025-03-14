@@ -683,7 +683,7 @@ export function cloneArray<T>(source: readonly T[]) {
 export function quickFilter<T>(source: T[], predicate: (v: T) => boolean) {
     let last = source.length - 1
 
-    for (let i = 0; i < last;) {
+    for (let i = 0; i <= last;) {
         if (predicate(source[i])) {
             i++
         } else {
