@@ -1392,6 +1392,11 @@ export function mapConcat<K, V>(mapA: Map<K, V>, mapB: Map<K, V>) {
     return newMap
 }
 
+export function mapAppend<K, V>(target: Map<K, V>, source: Map<K, V>) {
+    for (const [key, value] of source) target.set(key, value)
+    return target
+}
+
 export function bufferConcat(buffers: (ArrayBuffer | ArrayBufferView)[]) {
     let length = 0
 
