@@ -13,7 +13,12 @@ export type ToReadonlyCollection<T> =
     T extends ReadonlyMap<infer K, infer U> ? ReadonlyMap<K, U> :
     T extends ReadonlySet<infer U> ? ReadonlySet<U> :
     T extends ReadonlyArray<infer U> ? ReadonlyArray<U> :
-    never
+    T
+export type ToDeepReadonlyCollection<T> =
+    T extends ReadonlyMap<infer K, infer U> ? ReadonlyMap<K, ToDeepReadonlyCollection<U>> :
+    T extends ReadonlySet<infer U> ? ReadonlySet<ToDeepReadonlyCollection<U>> :
+    T extends ReadonlyArray<infer U> ? ReadonlyArray<ToDeepReadonlyCollection<U>> :
+    T
 export type ReplaceProp<T, K extends keyof any, V> = Omit<T, K> & { [P in K]: V }
 export type ShiftTuple<T> = T extends [any, ...infer U] ? U : []
 export type MapKey<T> = T extends Map<infer U, any> ? U : never
