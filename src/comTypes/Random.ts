@@ -59,8 +59,39 @@ export class HashCode {
     }
 }
 
-/** Generates pseudo-random values. If seed is not specified defaults to `Date.now()`. */
-export class Random {
+/** Base class for all random generators */
+export abstract class _Random {
+    /** Random float in range `0 ≥ x > 1` */
+    public abstract next(): number
+
+    /** Random 32-bit integer */
+    public nextInt() {
+        return this.next() * MUL_2_POW_32
+    }
+
+    /** Returns random float in range `min ≤ x < max` */
+    public nextRange(min: number, max: number) {
+        return this.next() * (max - min) + min
+    }
+
+    /** Returns a random boolean. */
+    public nextBoolean() {
+        return this.next() > 0.5
+    }
+
+    /** Returns random element from the array. */
+    public nextElement<T>(array: ArrayLike<T>) {
+        return array[this.nextRange(0, array.length) | 0]
+    }
+
+    /** Returns a closure, executing the `next` method. This is useful when a function expects a random generator argument. */
+    public getFactory() {
+        return () => this.next()
+    }
+}
+
+/** Generates pseudo-random values using the Alea algorithm. If seed is not specified defaults to `Date.now()`. */
+export class AleaRandom {
     public s0: number
     public s1: number
     public s2: number
@@ -115,11 +146,40 @@ export class Random {
 
         this.c = 1
     }
+}
 
-    /** Returns an instance of `Random`, that uses the default `Math.random` as its source. */
-    public static MATH_RANDOM = new class extends Random {
-        public next() {
-            return Math.random()
-        }
+/** Generates pseudo-random numbers using the native `Math.random()` function. */
+export class MathRandom extends _Random {
+    public next() {
+        return Math.random() * MUL_2_POW_32
     }
 }
+
+/** Generates pseudo-random numbers based on LCG algorithm, more specifically its behaviour is equivalent to the glibc implementation. */
+export class LcgRandom extends _Random {
+    /** Random float in range `0 ≥ x > 1` */
+    public next() {
+        return this.nextInt() * DIV_2_POW_32
+    }
+
+    /** Random 32-bit integer */
+    public nextInt() {
+        return this.state = (Math.imul(this.state, 1103515245) + 12345) & 0x7fffffff
+    }
+
+    constructor(
+        public state: number
+    ) { super() }
+}
+
+/** Generates pseudo-random values. If seed is not specified defaults to `Date.now()`. */
+export class Random {
+    constructor(seed: number | HashCode = Date.now()) {
+        return new AleaRandom(seed)
+    }
+
+    public static [Symbol.hasInstance](instance: unknown) {
+        return instance instanceof _Random
+    }
+}
+export interface Random extends _Random { }
