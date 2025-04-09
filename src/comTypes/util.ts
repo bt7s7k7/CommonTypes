@@ -983,7 +983,11 @@ export function makeMapByKeyProperty<T, K extends keyof T>(list: Iterable<T>, pr
     const result = new Map<T[K], T>()
 
     for (const entry of list) {
-        result.set(entry[property], entry)
+        const key = entry[property]
+        if (result.has(key)) {
+            throw new RangeError(`Duplicate key "${key}"`)
+        }
+        result.set(key, entry)
     }
 
     return result
