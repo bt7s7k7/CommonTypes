@@ -23,3 +23,6 @@ export type ReplaceProp<T, K extends keyof any, V> = Omit<T, K> & { [P in K]: V 
 export type ShiftTuple<T> = T extends [any, ...infer U] ? U : []
 export type MapKey<T> = T extends Map<infer U, any> ? U : never
 export type MapValue<T> = T extends Map<any, infer U> ? U : never
+export type DeepPartial<T> = T extends object ? {
+    [P in keyof T]?: DeepPartial<T[P]>
+} : T

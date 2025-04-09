@@ -1,5 +1,5 @@
 import { GenericParser } from "./GenericParser"
-import { AbstractConstructor, MapKey, MapValue } from "./types"
+import { AbstractConstructor, DeepPartial, MapKey, MapValue } from "./types"
 
 export function makeRandomID() {
     let bytes: number[] | Uint8Array
@@ -1455,4 +1455,30 @@ export async function asyncReadAll<T>(iterable: AsyncIterable<T>) {
     }
 
     return result
+}
+export function deepObjectApply<T>(a: T | null | undefined, b: T | null | undefined): T
+export function deepObjectApply<T>(a: T | null | undefined, b: null | undefined): T
+export function deepObjectApply<T>(a: T | null | undefined, b: DeepPartial<T>): T
+export function deepObjectApply(a: any, b: any): any {
+    if (b == null) return a
+
+    if (typeof a == "object" && a != null) {
+        if (a instanceof Array) {
+            a.push(...(b as any[]))
+            return a
+        }
+
+        for (const [key, newValue] of Object.entries(b)) {
+            const originalValue = key in a ? (a as any)[key] : undefined
+            if (typeof originalValue == "object" && originalValue != null) {
+                (a as any)[key] = deepObjectApply(originalValue, newValue)
+                continue
+            }
+            (a as any)[key] = newValue
+        }
+
+        return a
+    }
+
+    return b
 }
