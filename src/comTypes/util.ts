@@ -748,6 +748,18 @@ export function insertSorted<T>(target: T, array: T[], comparator: (a: T, target
     }
 }
 
+/**
+ * Inserts an element based on a binary search. To sort ascending compare `(a,b) => a - b`, descending `(a,b) => b - a`. If a value is found to be equal to an existing element nothing is inserted.
+ */
+export function insertSortedWithoutDuplicates<T>(target: T, array: T[], comparator: (a: T, target: T) => number) {
+    const index = binarySearch(array, a => comparator(target, a))
+    if (index >= 0) {
+        array.splice(index + 1, 0, target)
+    } else {
+        array.splice(-index - 1, 0, target)
+    }
+}
+
 /** @deprecated Use `modify`. */
 export const mutate = modify
 
