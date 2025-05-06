@@ -9,6 +9,12 @@ export class GenericParser {
         return this.index + offset < this.input.length && this.index + offset >= 0 ? this.input[this.index + offset] : ""
     }
 
+    public read(length: number) {
+        const result = this.input.slice(this.index, this.index + length)
+        this.index += length
+        return result
+    }
+
     public skipUntil(predicate: (input: string, index: number) => boolean): boolean
     public skipUntil(token: string): boolean
     public skipUntil(predicate: string | ((input: string, index: number) => boolean)) {
