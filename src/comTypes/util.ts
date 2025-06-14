@@ -1498,3 +1498,18 @@ export function deepObjectApply(a: any, b: any): any {
 
     return b
 }
+
+/**
+ * This function fixes the edge case of taking a root of a negative number using `Math.pow`
+ * 
+ * @example
+ * Math.pow(-1, 1/3) // returns NaN
+ * powWithNegativeNumbers(-1, 1/3) // returns -1
+ */
+export function powWithNegativeNumbers(x: number, y: number) {
+    if (x < 0) {
+        return -Math.pow(Math.abs(x), y)
+    } else {
+        return Math.pow(x, y)
+    }
+}
