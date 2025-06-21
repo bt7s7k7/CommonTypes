@@ -159,7 +159,7 @@ export function autoFilter<T>(source: (T | null | false | undefined | T[])[]) {
 
 const BASE_64_INDEX = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 
-export function toBase64Binary(source: ArrayBuffer | Uint8Array | number[]) {
+export function toBase64Binary(source: ArrayBufferLike | Uint8Array | number[]) {
     const input = source instanceof Array ? source : new Uint8Array(ensureArrayBuffer(source))
     const inputLength = input.length
     const segmentsCount = Math.ceil(inputLength / 3)
@@ -221,7 +221,7 @@ export function fromBase64Binary(input: string) {
     return output
 }
 
-export function makeDataURL(type: string, data: ArrayBuffer | string) {
+export function makeDataURL(type: string, data: ArrayBufferLike | string) {
     data = typeof data == "string" ? data : toBase64Binary(data)
 
     return `data:${type};base64,${data}`
@@ -530,13 +530,13 @@ export function encodeUTF16(text: string) {
     return result
 }
 
-export function decodeAscii(source: ArrayBuffer | Uint8Array | number[]) {
+export function decodeAscii(source: ArrayBufferLike | Uint8Array | number[]) {
     const array = source instanceof Array ? source : new Uint8Array(ensureArrayBuffer(source))
 
     return String.fromCharCode(...array)
 }
 
-export function decodeUTF16(source: ArrayBuffer | Uint16Array | number[]) {
+export function decodeUTF16(source: ArrayBufferLike | Uint16Array | number[]) {
     const array = source instanceof Array ? source : new Uint16Array(ensureArrayBuffer(source))
 
     return String.fromCharCode(...array)
@@ -999,7 +999,7 @@ export function makeMapByKeyProperty<T, K extends keyof T>(list: Iterable<T>, pr
  * the ctor will copy the array number by number instead of just creating a view.
  * This function ensures a value is actually an `ArrayBuffer`.
  **/
-export function ensureArrayBuffer(input: ArrayBuffer | ArrayBufferView) {
+export function ensureArrayBuffer(input: ArrayBufferLike | ArrayBufferView) {
     if (ArrayBuffer.isView(input)) return input.buffer
 
     return input
@@ -1413,7 +1413,7 @@ export function mapAppend<K, V>(target: Map<K, V>, source: Map<K, V>) {
     return target
 }
 
-export function bufferConcat(buffers: (ArrayBuffer | ArrayBufferView)[]) {
+export function bufferConcat(buffers: (ArrayBufferLike | ArrayBufferView)[]) {
     let length = 0
 
     for (const value of buffers) {
