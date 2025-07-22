@@ -269,6 +269,26 @@ export function weightedRandom<T>(source: Iterable<{ value: T, weight: number }>
     throw new Error("Failed assertion: no choice picked from weighted random")
 }
 
+export function weightedRandomI<T>(source: Iterable<number>, sum: number | undefined | null = null, value = Math.random()) {
+    if (sum == null) {
+        sum = 0
+        for (const entry of source) {
+            sum += entry
+        }
+    }
+
+    let choice = value * sum
+    let index = 0
+
+    for (const entry of source) {
+        if (choice < entry) return index
+        choice -= entry
+        index++
+    }
+
+    throw new Error("Failed assertion: no choice picked from weighted random")
+}
+
 /**
  * Returns an iterator, returning numbers `<0, length-1>`.
  */
