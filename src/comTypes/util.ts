@@ -1533,3 +1533,23 @@ export function powWithNegativeNumbers(x: number, y: number) {
         return Math.pow(x, y)
     }
 }
+
+let _lastTime: number | null = null
+/** Returns formatted elapsed time since this function was last executed */
+export function elapsedTime() {
+    if (_lastTime == null) {
+        _lastTime = performance.now()
+        return "0ms"
+    }
+
+    const now = performance.now()
+    const then = _lastTime
+    _lastTime = now
+    const elapsedTime = now - then
+
+    if (elapsedTime < 1000) {
+        return `+${elapsedTime | 0}ms`
+    } else {
+        return `+${(elapsedTime / 1000).toFixed(2)}s`
+    }
+}
