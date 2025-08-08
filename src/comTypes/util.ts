@@ -1553,3 +1553,36 @@ export function elapsedTime() {
         return `+${(elapsedTime / 1000).toFixed(2)}s`
     }
 }
+
+export function asyncConcurrency<T = void>(maxConcurrency: number | null = null) {
+    let results: Promise<T>[] = []
+    const queue: (() => Promise<T>)[] = []
+
+    let running = 0
+
+    function finalizer() {
+        running--
+        if (queue.length > 0 && (maxConcurrency == null || running < maxConcurrency)) {
+            const next = queue.shift()!
+            results.push(next().finally(finalizer))
+        }
+    }
+
+    return {
+        push(thunk: () => Promise<T>) {
+            if (maxConcurrency == null || running < maxConcurrency) {
+                running++
+                results.push(thunk().finally(finalizer))
+            } else {
+                queue.push(thunk)
+            }
+        },
+        async join() {
+            while (results.length > 0) {
+                const toWait = results
+                results = []
+                await Promise.all(toWait)
+            }
+        }
+    }
+}
