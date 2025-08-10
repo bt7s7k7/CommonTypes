@@ -26,3 +26,13 @@ export type MapValue<T> = T extends Map<any, infer U> ? U : never
 export type DeepPartial<T> = T extends object ? {
     [P in keyof T]?: DeepPartial<T[P]>
 } : T
+export type MakeOptions<T, KRequired extends keyof T, KOptional extends keyof T = never> =
+    & Pick<FilterPublic<T>, KRequired>
+    & Partial<Pick<FilterPublic<T>, KOptional>>
+export type Options<T extends ((abstract new (...args: any) => any) | ((...args: any) => any))> = (
+    T extends abstract new (...args: any) => any ? (
+        ConstructorParameters<T>
+    ) : T extends (...args: any) => any ? (
+        Parameters<T>
+    ) : never
+)[0]
