@@ -177,6 +177,18 @@ export class Optional<T> {
         return this as any
     }
 
+    public pcall<A extends any[], R>(thunk: (value: T, ...args: A) => R, ...args: A) {
+        if (this._rejected) {
+            return this
+        }
+
+        try {
+            return Optional.value(thunk(this._value, ...args))
+        } catch (err) {
+            return Optional.rejected<never>(asError(err))
+        }
+    }
+
     protected constructor(value: T) {
         this._value = value
     }
