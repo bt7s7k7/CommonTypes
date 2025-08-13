@@ -1063,6 +1063,10 @@ export function rangeClamp(value: number, min: number, max: number) {
     return value
 }
 
+export function remap(value: number, inMin: number, inMax: number, outMin: number, outMax: number) {
+    return (value - inMin) / (inMax - inMin) * (outMax - outMin) + outMin
+}
+
 export function isPrimitiveValue(value: any): value is string | number | boolean | null {
     return typeof value == "string" || typeof value == "number" || typeof value == "boolean" || (typeof value == "object" && value == null)
 }
