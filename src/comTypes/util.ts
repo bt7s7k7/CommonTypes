@@ -985,6 +985,16 @@ export function iteratorNth<T>(iterator: Iterator<T> | Iterable<T>, index = 0) {
     }
 }
 
+/** Tests if the iterator has values by trying to iterating once  */
+export function isIteratorEmpty<T>(iterator: Iterator<T> | Iterable<T>, index = 0) {
+    if (!("next" in iterator)) {
+        iterator = iterator[Symbol.iterator]()
+    }
+
+    const result = iterator.next()
+    return result.done
+}
+
 /** Creates an object from the provided iterable,
  * with the property names being based on the specified property.
  * The returned object has a null prototype. */
