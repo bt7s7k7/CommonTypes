@@ -1110,6 +1110,16 @@ export function cloneWith<T extends object>(object: T, params: Partial<T>) {
     return Object.assign(shallowClone(object), params)
 }
 
+export function pick<T extends object, K extends keyof T>(object: T, ...keys: K[]) {
+    const result = {} as Pick<T, K>
+
+    for (const key of keys) {
+        result[key] = object[key]
+    }
+
+    return result
+}
+
 /**
  * Runs a constructor in the provided class even if the constructor is marked as protected or private.
  */
