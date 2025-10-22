@@ -1610,3 +1610,16 @@ export function asyncConcurrency<T = void>(maxConcurrency: number | null = null)
         }
     }
 }
+
+export function cachedSupplier<T>(supplier: () => T) {
+    let cached = false
+    let value: T = null!
+
+    return () => {
+        if (cached) {
+            return value
+        } else {
+            return value = supplier()
+        }
+    }
+}
