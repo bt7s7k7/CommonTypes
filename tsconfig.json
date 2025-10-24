@@ -5,7 +5,8 @@
         "sourceMap": true,
         "strict": true,
         "lib": [
-            "ESNext"
+            "ESNext",
+            "DOM"
         ],
         "module": "CommonJS",
         "esModuleInterop": true,
