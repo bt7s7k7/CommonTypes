@@ -163,7 +163,7 @@ export function toBase64Binary(source: ArrayBufferLike | Uint8Array | number[]) 
     const input = source instanceof Array ? source : new Uint8Array(ensureArrayBuffer(source))
 
     if ("Buffer" in globalThis) {
-        return (globalThis as any).Buffer.from(input).toString("base64")
+        return (globalThis as any).Buffer.from(input).toString("base64") as string
     }
 
     const inputLength = input.length
@@ -192,22 +192,42 @@ export function toBase64Binary(source: ArrayBufferLike | Uint8Array | number[]) 
     return output
 }
 
-export function fromBase64Binary(input: string) {
-    const inputLength = input.length
-    const segmentsCount = Math.ceil(inputLength / 4)
+export function fromBase64Binary(inputString: string) {
+    if ("Buffer" in globalThis) {
+        const decoded: ArrayBufferView = (globalThis as any).Buffer.from(inputString, "base64")
+        return new Uint8Array(decoded.buffer, decoded.byteOffset, decoded.byteLength)
+    }
 
-    const paddingIndex = input.indexOf("=")
-    const paddingLength = paddingIndex == -1 ? 0 : input.length - paddingIndex
+    // Convert characters into numeric codes, it's faster to do it all at once than to use
+    // charCodeAt for each character.
+    const input = new TextEncoder().encode(inputString)
+
+    const segmentsCount = Math.ceil(input.length / 4)
+
+    // Find padding
+    let dataLength = input.length
+    while (input[dataLength - 1] == 61) dataLength--
+    const paddingLength = (segmentsCount * 4) - dataLength
 
     const outputLength = segmentsCount * 3 - paddingLength
     const output = new Uint8Array(outputLength)
 
-    const processChar = (char: string | undefined) => {
-        if (char == undefined) return 0
-        if (char == "=") return 0
+    const processChar = (code: number) => {
+        if (code == undefined || code == 61) return 0
 
-        const index = BASE_64_INDEX.indexOf(char)
-        if (index == -1) throw new Error("Invalid base64 character " + JSON.stringify(char))
+        let index = code >= 65 && code <= 90 ? ( // A to Z
+            code - 65
+        ) : code >= 97 && code <= 122 ? ( // a to z
+            code - 71
+        ) : code >= 48 && code <= 57 ? ( // 0 to 9
+            code + 4
+        ) : code == 43 ? ( // "+"
+            62
+        ) : code == 47 ? ( // "/"
+            63
+        ) : -1
+
+        if (index == -1) throw new Error(`Invalid base64 character ${JSON.stringify(String.fromCharCode(code))} (${code})`)
         return index
     }
 
