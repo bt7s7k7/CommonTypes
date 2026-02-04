@@ -153,8 +153,8 @@ export function makeBound<T extends any[], R>(...args: T) {
     }
 }
 
-export function autoFilter<T>(source: (T | null | false | undefined | T[])[]) {
-    return source.filter(v => v).flatMap(v => v instanceof Array ? v : [v]) as T[]
+export function autoFilter<T>(source: readonly (T | null | false | undefined | readonly T[])[]) {
+    return source.filter(v => v).flatMap(v => v instanceof Array ? v : [v] as T[])
 }
 
 const BASE_64_INDEX = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
