@@ -161,11 +161,17 @@ const BASE_64_INDEX = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234
 
 export function toBase64Binary(source: ArrayBufferLike | Uint8Array | number[]) {
     const input = source instanceof Array ? source : new Uint8Array(ensureArrayBuffer(source))
+
+    if ("Buffer" in globalThis) {
+        return (globalThis as any).Buffer.from(input).toString("base64")
+    }
+
     const inputLength = input.length
     const segmentsCount = Math.ceil(inputLength / 3)
 
-    const outLength = segmentsCount * 4
-    const output = new Array<string>(outLength)
+    // This used to create and array, fill it with characters and the join the array at the end. For
+    // some reason this new stupid approach is almost five(!) times faster.
+    let output = ""
 
     for (let i = 0; i < segmentsCount; i++) {
         const aO = input[i * 3 + 0]
@@ -177,13 +183,13 @@ export function toBase64Binary(source: ArrayBufferLike | Uint8Array | number[]) 
 
         const number = (a << 16) + (b << 8) + c
 
-        output[i * 4 + 0] = BASE_64_INDEX[(number >>> 18) & 63]
-        output[i * 4 + 1] = BASE_64_INDEX[(number >>> 12) & 63]
-        output[i * 4 + 2] = bO == undefined && cO == undefined ? "=" : BASE_64_INDEX[(number >>> 6) & 63]
-        output[i * 4 + 3] = cO == undefined ? "=" : BASE_64_INDEX[(number >>> 0) & 63]
+        output += BASE_64_INDEX[(number >>> 18) & 63]
+        output += BASE_64_INDEX[(number >>> 12) & 63]
+        output += bO == undefined && cO == undefined ? "=" : BASE_64_INDEX[(number >>> 6) & 63]
+        output += cO == undefined ? "=" : BASE_64_INDEX[(number >>> 0) & 63]
     }
 
-    return output.join("")
+    return output
 }
 
 export function fromBase64Binary(input: string) {
