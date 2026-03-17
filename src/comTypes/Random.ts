@@ -163,7 +163,7 @@ export class LcgRandom extends _Random {
     }
 
     /** Random 32-bit integer */
-    public nextInt() {
+    public override nextInt() {
         return this.state = (Math.imul(this.state, 1103515245) + 12345) & 0x7fffffff
     }
 

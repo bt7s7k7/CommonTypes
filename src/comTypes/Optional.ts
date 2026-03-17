@@ -2,11 +2,11 @@ import { AbstractConstructor } from "./types"
 import { asError, toString } from "./util"
 
 export class PredicateFailedError extends Error {
-    name = "PredicateFailedError"
+    public override name = "PredicateFailedError"
 }
 
 export class ErrorResultUnwrapError extends Error {
-    name = "ErrorResultUnwrapError"
+    public override name = "ErrorResultUnwrapError"
 }
 
 export class Optional<T> {
