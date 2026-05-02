@@ -800,6 +800,8 @@ export function insertSorted<T>(target: T, array: T[], comparator: (a: T, target
 export function insertSortedWithoutDuplicates<T>(target: T, array: T[], comparator: (a: T, target: T) => number) {
     const index = binarySearch(array, a => comparator(target, a))
     if (index >= 0) {
+        if (comparator(array[index], target) == 0) return
+
         array.splice(index + 1, 0, target)
     } else {
         array.splice(-index - 1, 0, target)
