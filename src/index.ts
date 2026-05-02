@@ -1,3 +1,4 @@
+export * from "./comTypes/const"
 export * from "./comTypes/GenericParser"
 export * from "./comTypes/Graph"
 export * from "./comTypes/ImmutableList"
